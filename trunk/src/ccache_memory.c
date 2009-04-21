@@ -143,12 +143,12 @@ ccache_init_freearea(ccache_t* cache, int datasize, int min_size, int max_size)
     int size = min_size + sizeof(ccache_node_t);
     int nodesize = datasize;
 
-    max_size += sizeof(ccache_node_t);
+    max_size = ccache_round_up(sizeof(ccache_node_t) + max_size);
     cache->freearea = (ccache_freearea_t*)(cache->hashitem + cache->hashitemnum);
     for (i = 0; size <= max_size; ++i)
     {
         size = ccache_round_up(size);
-        nodesize -= size + sizeof(struct ccache_freearea_t);
+        nodesize -= sizeof(struct ccache_freearea_t);
         if (0 > nodesize)
         {
             return -1;
