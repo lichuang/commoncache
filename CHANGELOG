@@ -1,0 +1,42 @@
+0.1版本(2008-03-24):
+1)ccache支持对定长key和value的find,update,insert操作
+
+0.2版本(2008-04-02):
+1)cmpfun函数指针去掉了size参数, 因为我认为这个参数应该由使用该cache的用户去关心,见test/testcache.c中的示例代码
+2)加入两个api:update_or_insert_data和visit_cache
+3)同时还有unlock_cache api,因为某些使用C++的用户如果使用了C++的异常处理,在调用ccache中的API时抛出异常将导致ccache没有解锁
+, 以后就不能再使用了, 提供这个API是为了在抛出异常的时候用户自己释放锁
+
+4)另外,这个版本还修正了原来的两个低级错误:第一个是在ccache.h中加入了对__cplusplus宏的处理,如果不加入这个宏的处理,那么如果用gcc编译了
+ccache,而用g++编译链接生成的静态库将导致链接错误;第二个将makefile中的
+testcache:test/testcache.c $(OBJS)
+	$(CC) -o $(TESTCACHE) $(OBJS) $(TESTDIR)/*.c -L$(LIB_DIR) -l$(LIBNAME) $(CFLAGS) $(INCLUDE) -lpthread
+改成了:
+testcache:test/testcache.c $(LIB)
+    $(CC) -o $(TESTCACHE) $(TESTDIR)/*.c -L$(LIB_DIR) -l$(LIBNAME) $(CFLAGS) $(INCLUDE) -lpthread
+    
+0.3版本(2008-08-07)
+1)加入对可变长key/value的支持.
+s2)hm.h/.c文件更名为memory.h/.c文件 create_shm/destroy_shm 更名为create_mmap/destroy_mmap
+3)加入头文件config.h, 可用于配置一些参数
+4)加入error.h/error.c 可以保存一些出错的信息
+
+0.4版本(2008-10-31)
+1)将原先的线程锁改成了线程读写锁,这个变化会让操作更快些,在查找,遍历操作的时候使用的是读锁,插入,删除,更新,替换等
+会改变cache中元素的操作使用的是写锁.
+2)将原先的API命名方式做了改变,变为ccache_***方式的命名, 这也是很多项目的命名方式, 但是其他未向外公开的API没有改变
+命名方式,我在想是不是要把所有的函数都改成ccache_***的命名方式, 似乎这样更加统一一些.
+3)另外, 原来的一个API, update_or_insert_data,命名方式太丑陋了, 改成了replace, 按照现在的命名方式, 这个API的名字
+就是ccache_replace.
+4)原先的operator.h/.c文件被删除, 取而代之的是functor.h/.c文件, 同时将插入,替换,更新,查找,删除,访问等操作作为函数指针封装到functor_t结构体
+中, 这样以后采用其他的数据结构只要初始化不同的函数指针就可以了.
+
+0.5版本(2008-11-14)
+1) 加入对红黑树的支持, 可以在编译的时候决定使用的是hash-list还是hash-rbtree结构体进行数据的存储,具体请见makefile
+2) 加入了一个数据结构对insert,find,erase,update,replace等操作进行统计, 参见ccache.h中的ccache_stat_t的结构体,另外在
+测试程序中也加入了演示打印这些数据的函数,参见test中的测试代码.
+3) 对hash-list算法进行了改进, 在访问到某一个节点的时候, 会让这个节点所在的链表位置向前走一步, 这样访问越频繁的节点就越靠近
+链表头部,参见ccache_lis.c中的ccache_list_advance函数, 每次访问了某个节点就会去调用该函数.
+4) 同样的,LRU链表算法也进行了改善,之前是访问的节点马上就更新到该LRU链表的头部, 现在也更改为每次向前走一步,
+参见ccache_lrulist.c中的ccache_lrulist_advance函数.
+5) 代码风格的调整, 所有的文件名,函数名, 宏名, 自定义类型名称都加上了"ccache_"前缀.
