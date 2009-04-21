@@ -22,10 +22,6 @@ EXTENSION=c
 OBJS=$(patsubst $(SRC_DIR)/%.$(EXTENSION), $(OBJ_DIR)/%.o,$(wildcard $(SRC_DIR)/*.$(EXTENSION)))
 DEPS=$(patsubst $(OBJ_DIR)/%.o, $(DEPS_DIR)/%.d, $(OBJS))
 
-ALL_OBJS=\
-        $(OBJS)                 			\
-        $(DEPS)                 			
-
 ###################include头文件路径##################################
 INCLUDE=\
 		-I$(INCLUDE_DIR)
@@ -38,15 +34,19 @@ CC=gcc
 CFLAGS=-Wall -W -g -DCCACHE_USE_RBTREE
 
 ###################编译目标###########################################
-.phony: all clean rebuild
+.PHONY: all clean rebuild
 
 all:$(OBJS)
-	ar rcs $(LIB) $^
+	ar rcs $(LIB) $(OBJS)
+
+sinclude $(DEPS)
 
 $(DEPS_DIR)/%.d: $(SRC_DIR)/%.$(EXTENSION)
-	$(CC) -MM -MD $(INCLUDE) $(CFLAGS) $< -o $@
+	@$(CC) -MM -MD $(INCLUDE) $(CFLAGS) $< > temp; \
+	sed 1's,^,$(OBJ_DIR)/,' < temp > $@; \
+	rm -f temp
 
-$(OBJ_DIR)/%.o:$(SRC_DIR)/%.$(EXTENSION) $(INCLUDE_DIR)/*.h
+$(OBJ_DIR)/%.o:$(SRC_DIR)/%.$(EXTENSION) 
 	$(CC) $< -o $@ -c $(CFLAGS) $(INCLUDE) 
 
 test_fix_cache:test/test_fix_cache.c $(LIB)
@@ -54,8 +54,6 @@ test_fix_cache:test/test_fix_cache.c $(LIB)
 
 test_unfix_cache:test/test_unfix_cache.c $(LIB)
 	$(CC) -o $(TEST_UNFIX_CACHE) $(TESTDIR)/test_unfix_cache.c -L$(LIB_DIR) -l$(LIBNAME) $(CFLAGS) $(INCLUDE) -lpthread
-
--include $(DEPS)
 
 rebuild: clean all
 
