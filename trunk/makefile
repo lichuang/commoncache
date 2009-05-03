@@ -42,7 +42,7 @@ all:$(OBJS)
 sinclude $(DEPS)
 
 $(DEPS_DIR)/%.d: $(SRC_DIR)/%.$(EXTENSION)
-	@$(CC) -MM -MD $(INCLUDE) $(CFLAGS) $< > temp; \
+	@$(CC) -MM $(INCLUDE) $< > temp; \
 	sed 1's,^,$(OBJ_DIR)/,' < temp > $@; \
 	rm -f temp
 
