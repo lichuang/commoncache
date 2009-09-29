@@ -11,7 +11,7 @@
 
 #include "ccache.h"
 
-int ccache_init_functor(ccache_functor_t* functor);
+int ccache_init_functor(ccache_functor_t *functor);
 
 #endif /* __CCACHE_FUNCTOR_H__ */
 
