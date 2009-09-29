@@ -94,7 +94,8 @@ ccache_insert(const ccache_data_t* data, ccache_t* cache, ccache_compare_t compa
     exist = 0;
     node = cache->functor.insert(hashindex, data, cache, compare, erase, arg, &exist);
 
-    if (!node || exist)
+    //if (!node || exist)
+    if (!node)
     {
         cache->stat.insert_stat.fail_num++;
         node = NULL;
@@ -128,7 +129,7 @@ ccache_find(ccache_data_t* data, ccache_t* cache, ccache_compare_t compare)
     int hashindex = ccache_hash(data->key, data->keysize, cache);
     ccache_node_t* node;
 
-    if (0 > pthread_rwlock_rdlock(&(cache->lock)))
+    if (0 > pthread_rwlock_wrlock(&(cache->lock)))
     {
         CCACHE_SET_ERROR_NUM(CCACHE_LOCK_ERROR);
         return -1;
@@ -334,7 +335,7 @@ ccache_visit(ccache_t* cache, ccache_visit_t visit, void* arg)
     return 0;
 }
 
-int 
+static int 
 ccache_count_cache_size(int datasize, int hashitemnum)
 {
     return (sizeof(struct ccache_t)

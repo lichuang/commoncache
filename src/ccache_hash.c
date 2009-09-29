@@ -10,8 +10,8 @@
 #include "ccache.h"
 #include <string.h>
 
-unsigned int 
-ccache_hash(const void* key, int keysize, ccache_t* cache)
+int 
+ccache_hash(const void* key, int keysize, ccache_t *cache)
 {
     int index, i;
     unsigned int hash = 0, tempindex = 0;
@@ -35,13 +35,18 @@ ccache_hash(const void* key, int keysize, ccache_t* cache)
 }
 
 int 
-ccache_init_hashitem(ccache_t* cache)
+ccache_init_hashitem(ccache_t *cache)
 {
     int hashitemnum = cache->hashitemnum, i;
 
     for (i = 0; i < hashitemnum; ++i)
     {
-        cache->hashitem[i].first = NULL;
+#ifdef CCACHE_USE_LIST
+		cache->hashitem[i].first = NULL;
+#elif defined CCACHE_USE_RBTREE    
+		cache->hashitem[i].root = NULL;
+#endif		
+        
         cache->hashitem[i].nodenum = 0;
     }
 

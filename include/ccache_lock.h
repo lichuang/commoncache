@@ -11,7 +11,7 @@
 
 #include <pthread.h>
 
-int ccache_init_thread_rwlock(pthread_rwlock_t* lock);
+int ccache_init_thread_rwlock(pthread_rwlock_t *lock);
 
 #endif /* __CCACHE_LOCK_H__ */
 

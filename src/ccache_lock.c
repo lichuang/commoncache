@@ -11,7 +11,7 @@
 #include <fcntl.h>
 
 int 
-ccache_init_thread_rwlock(pthread_rwlock_t* lock)
+ccache_init_thread_rwlock(pthread_rwlock_t *lock)
 {
     pthread_rwlockattr_t attr;
 

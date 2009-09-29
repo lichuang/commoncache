@@ -36,7 +36,7 @@ typedef     int (*ccache_compare_t)(const void* data1, const void* data2, int le
  * @brief   function pointer type used when deleting data
  * @return 
  */
-typedef     void (*ccache_erase_t)(void* arg, const ccache_node_t* node);
+typedef     void (*ccache_erase_t)(void* arg, const ccache_node_t *node);
 
 /**
  * @brief   function pointer type used to update a node when node exist, the result will be saved in data
@@ -44,14 +44,14 @@ typedef     void (*ccache_erase_t)(void* arg, const ccache_node_t* node);
  * @param   data: update data and saved the result 
  * @return 
  */
-typedef     void (*ccache_update_t)(const ccache_node_t* node, ccache_data_t* data);
+typedef     void (*ccache_update_t)(const ccache_node_t *node, ccache_data_t *data);
 
 /**
  * @brief   function pointer type used to visit all the nodes in the cache
  * @param   
  * @return 
  */
-typedef     void (*ccache_visit_t)(void* arg, ccache_node_t* node);
+typedef     void (*ccache_visit_t)(void* arg, ccache_node_t *node);
 
 struct ccache_t;
 
@@ -61,42 +61,42 @@ typedef struct ccache_functor_t
     /*
      * find a data in the hashindex hashtable  
      */
-    ccache_node_t* (*find)(int hashindex, const ccache_data_t* data, 
-                            struct ccache_t* cache, ccache_compare_t cmp);
+    ccache_node_t* (*find)(int hashindex, const ccache_data_t *data, 
+                            struct ccache_t *cache, ccache_compare_t cmp);
 
     /*
      * insert a data in the hashindex hashtable, if the key exist,
      * return the node and set exist 
      */
-    ccache_node_t* (*insert)(int hashindex, const ccache_data_t* data,
-                            struct ccache_t* cache, ccache_compare_t cmp,
-                            ccache_erase_t erase, void* arg, int* exist);
+    ccache_node_t* (*insert)(int hashindex, const ccache_data_t *data,
+                            struct ccache_t *cache, ccache_compare_t cmp,
+                            ccache_erase_t erase, void* arg, int *exist);
 
     /*
      * replace a data in the hashindex hashtable,
      * if the key exist, insert the data 
      */
-    ccache_node_t* (*replace)(int hashindex, ccache_data_t* data,
-                            struct ccache_t* cache, ccache_compare_t cmp, 
+    ccache_node_t* (*replace)(int hashindex, ccache_data_t *data,
+                            struct ccache_t *cache, ccache_compare_t cmp, 
                             ccache_erase_t erase, void* arg, ccache_update_t update);
 
     /*
      * update a data in the hashindex hashtable, 
      * if the key is not exist, return NULL
      */
-    ccache_node_t* (*update)(int hashindex, const ccache_data_t* data, 
-                            struct ccache_t* cache, ccache_compare_t cmp);
+    ccache_node_t* (*update)(int hashindex, const ccache_data_t *data, 
+                            struct ccache_t *cache, ccache_compare_t cmp);
 
     /*
      * erase a data in the hashindex hashtable and return the erased node, 
      * if the key is not exist, return NULL
      */
-    ccache_node_t* (*erase)(int hashindex, ccache_node_t* node, struct ccache_t* cache);
+    ccache_node_t* (*erase)(int hashindex, ccache_node_t *node, struct ccache_t *cache);
 
     /*
      * visit the nodes in the hashindex hash-table
      */
-    void           (*visit)(struct ccache_t* cache, int hashindex, ccache_visit_t visit, void* arg);
+    void           (*visit)(struct ccache_t *cache, int hashindex, ccache_visit_t visit, void* arg);
 }ccache_functor_t;
 
 typedef struct ccache_stat_count_t
@@ -154,7 +154,7 @@ ccache_t*    ccache_create(int datasize, int hashitemnum, const char* mapfilenam
  * @param   
  * @return  
  */
-void         ccache_destroy(ccache_t* cache);
+void         ccache_destroy(ccache_t *cache);
 
 /**
  * @brief   insert a data into the cache
@@ -166,7 +166,7 @@ void         ccache_destroy(ccache_t* cache);
  * @param   arg: the argument passed to the erase function
  * @return  0 if success, -1 if failed
  */
-int         ccache_insert(const ccache_data_t* data, ccache_t* cache, 
+int         ccache_insert(const ccache_data_t *data, ccache_t *cache, 
                         ccache_compare_t compare, ccache_erase_t erase, void* arg);
 
 /**
@@ -176,7 +176,7 @@ int         ccache_insert(const ccache_data_t* data, ccache_t* cache,
  * @param   compare: the function used to compare key
  * @return  0 if success, -1 if failed
  */
-int         ccache_find(ccache_data_t* data, ccache_t* cache, ccache_compare_t compare);
+int         ccache_find(ccache_data_t *data, ccache_t *cache, ccache_compare_t compare);
 
 /**
  * @brief   update a node in the cache
@@ -187,7 +187,7 @@ int         ccache_find(ccache_data_t* data, ccache_t* cache, ccache_compare_t c
  * @return  0 if success, -1 if failed
  * @NOTE    the data size and key size MUST equal to the previous
  */
-int         ccache_update(const ccache_data_t* data, ccache_t* cache, ccache_compare_t compare);
+int         ccache_update(const ccache_data_t *data, ccache_t *cache, ccache_compare_t compare);
 
 /**
  * @brief   erase a node in the cache
@@ -196,7 +196,7 @@ int         ccache_update(const ccache_data_t* data, ccache_t* cache, ccache_com
  * @param   compare: the function used to compare key
  * @return  0 if success, -1 if failed
  */
-int         ccache_erase(ccache_data_t* data, ccache_t* cache, ccache_compare_t compare);
+int         ccache_erase(ccache_data_t *data, ccache_t *cache, ccache_compare_t compare);
 
 /**
  * @brief   if the key does not in the cache, insert the data in the cache, 
@@ -208,7 +208,7 @@ int         ccache_erase(ccache_data_t* data, ccache_t* cache, ccache_compare_t 
  * @param   update: the function used to update node
  * @return  0 if success, -1 if failed
  */
-int         ccache_replace(ccache_data_t* data, ccache_t* cache, ccache_compare_t compare,
+int         ccache_replace(ccache_data_t *data, ccache_t *cache, ccache_compare_t compare,
                         ccache_erase_t erase, void* arg, ccache_update_t update);
 
 /**
@@ -218,7 +218,7 @@ int         ccache_replace(ccache_data_t* data, ccache_t* cache, ccache_compare_
  * @param   arg: the argument passed to the visit function
  * @return  0 if success, -1 if failed
  */
-int        ccache_visit(ccache_t* cache, ccache_visit_t visit, void* arg);
+int        ccache_visit(ccache_t *cache, ccache_visit_t visit, void* arg);
 
 #ifdef __cplusplus
 }
