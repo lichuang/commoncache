@@ -15,6 +15,8 @@
     #include "ccache_list.h"
 #elif defined CCACHE_USE_RBTREE    
     #include "ccache_rbtree.h"
+#else
+    #error "MUST define CCACHE_USE_LIST or CCACHE_USE_RBTREE in makefile"
 #endif
 
 #include <string.h>
@@ -25,7 +27,7 @@ ccache_t*
 ccache_create(int datasize, int hashitemnum, const char* mapfilename, int min_size, int max_size, int init)
 {
     int filesize = ccache_count_cache_size(datasize, hashitemnum);
-    ccache_t* cache = ccache_create_mmap(filesize, mapfilename, &init);
+    ccache_t *cache = ccache_create_mmap(filesize, mapfilename, &init);
     
     if (NULL == cache)
     {
@@ -70,18 +72,18 @@ ccache_create(int datasize, int hashitemnum, const char* mapfilename, int min_si
 }
 
 void 
-ccache_destroy(ccache_t* cache)
+ccache_destroy(ccache_t *cache)
 {
     pthread_rwlock_destroy(&(cache->lock));
     ccache_destroy_mmap(cache);
 }
 
 int 
-ccache_insert(const ccache_data_t* data, ccache_t* cache, ccache_compare_t compare,
+ccache_insert(const ccache_data_t *data, ccache_t *cache, ccache_compare_t compare,
             ccache_erase_t erase, void* arg)
 {
     int hashindex = ccache_hash(data->key, data->keysize, cache), exist;
-    ccache_node_t* node;
+    ccache_node_t *node;
 
     if (0 > pthread_rwlock_wrlock(&(cache->lock)))
     {
@@ -124,10 +126,10 @@ ccache_insert(const ccache_data_t* data, ccache_t* cache, ccache_compare_t compa
 }
 
 int 
-ccache_find(ccache_data_t* data, ccache_t* cache, ccache_compare_t compare)
+ccache_find(ccache_data_t *data, ccache_t *cache, ccache_compare_t compare)
 {
     int hashindex = ccache_hash(data->key, data->keysize, cache);
-    ccache_node_t* node;
+    ccache_node_t *node;
 
     if (0 > pthread_rwlock_wrlock(&(cache->lock)))
     {
@@ -167,10 +169,10 @@ ccache_find(ccache_data_t* data, ccache_t* cache, ccache_compare_t compare)
 }
 
 int 
-ccache_update(const ccache_data_t* data, ccache_t* cache, ccache_compare_t compare)
+ccache_update(const ccache_data_t *data, ccache_t *cache, ccache_compare_t compare)
 {
     int hashindex = ccache_hash(data->key, data->keysize, cache);
-    ccache_node_t* node;
+    ccache_node_t *node;
 
     if (0 > pthread_rwlock_wrlock(&(cache->lock)))
     {
@@ -188,6 +190,7 @@ ccache_update(const ccache_data_t* data, ccache_t* cache, ccache_compare_t compa
     }
     else
     {
+        CCACHE_SET_ERROR_NUM(CCACHE_KEY_EXIST);
         cache->stat.update_stat.fail_num++;
     }
 
@@ -209,10 +212,10 @@ ccache_update(const ccache_data_t* data, ccache_t* cache, ccache_compare_t compa
 }
 
 int 
-ccache_erase(ccache_data_t* data, ccache_t* cache, ccache_compare_t compare)
+ccache_erase(ccache_data_t *data, ccache_t *cache, ccache_compare_t compare)
 {
     int hashindex = ccache_hash(data->key, data->keysize, cache);
-    ccache_node_t* node;
+    ccache_node_t *node;
 
     if (0 > pthread_rwlock_wrlock(&(cache->lock)))
     {
@@ -268,11 +271,11 @@ ccache_erase(ccache_data_t* data, ccache_t* cache, ccache_compare_t compare)
 }
 
 int 
-ccache_replace(ccache_data_t* data, ccache_t* cache, ccache_compare_t compare,
+ccache_replace(ccache_data_t *data, ccache_t *cache, ccache_compare_t compare,
                 ccache_erase_t erase, void* arg, ccache_update_t update)
 {
     int hashindex = ccache_hash(data->key, data->keysize, cache);
-    ccache_node_t* node;
+    ccache_node_t *node;
 
     if (0 > pthread_rwlock_wrlock(&(cache->lock)))
     {
@@ -311,7 +314,7 @@ ccache_replace(ccache_data_t* data, ccache_t* cache, ccache_compare_t compare,
 }
 
 int 
-ccache_visit(ccache_t* cache, ccache_visit_t visit, void* arg)
+ccache_visit(ccache_t *cache, ccache_visit_t visit, void* arg)
 {
     int hashindex;
 
