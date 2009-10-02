@@ -217,7 +217,6 @@ ccache_prealloc(ccache_t *cache)
 {
     int i;
     char *start = cache->start_free;
-    ccache_node_t *node;
 
     if (CCACHE_PREALLOC_NODE_NUM > 0)
     {
@@ -227,7 +226,6 @@ ccache_prealloc(ccache_t *cache)
         }
         cache->start_free = start;
     }
-
 
     return 0;
 }
