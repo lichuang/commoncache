@@ -17,8 +17,8 @@ typedef struct ccache_hash_t
 {
     union
     {
-        ccache_node_t* first;
-        ccache_node_t* root;
+        ccache_node_t *first;
+        ccache_node_t *root;
     };
 
     int nodenum;

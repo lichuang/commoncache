@@ -20,10 +20,12 @@
 #include <unistd.h>
 #include <sys/mman.h>
 #include <string.h>
+#include <stdio.h>
 
-static int ccache_get_freeareaid(ccache_t *cache, int *size);
-static int ccache_round_up(int size);
-static int ccache_prealloc_freearea(ccache_t *cache);
+static int      ccache_get_freeareaid(ccache_t *cache, int *size);
+static int      ccache_round_up(int size);
+static char*    ccache_prealloc_freearea(ccache_t *cache, int index, char *start);
+static int      ccache_prealloc(ccache_t *cache);
 
 ccache_t* 
 ccache_create_mmap(int filesize, const char *mapfilename, int *init)
@@ -149,9 +151,10 @@ ccache_init_freearea(ccache_t *cache, int datasize, int min_size, int max_size)
     for (i = 0; size <= max_size; ++i)
     {
         size = ccache_round_up(size);
-        nodesize -= sizeof(struct ccache_freearea_t) + size;
+        nodesize -= sizeof(struct ccache_freearea_t) + size * CCACHE_PREALLOC_NODE_NUM;
         if (0 > nodesize)
         {
+            fprintf(stderr, "not enough memory for prealloc!\n");
             return -1;
         }
 
@@ -163,39 +166,68 @@ ccache_init_freearea(ccache_t *cache, int datasize, int min_size, int max_size)
     cache->freesize = nodesize;
     cache->start_free = (char*)(cache->freearea + cache->freeareanum);
 
-    if (cache->freesize < 0)
-    {
-        return -1;
-    }
-
-    return  ccache_prealloc_freearea(cache);
+    return  ccache_prealloc(cache);
 }
 
-int 
-ccache_prealloc_freearea(ccache_t *cache)
+char*
+ccache_prealloc_freearea(ccache_t *cache, int index, char *start)
 {
     int i;
-    char *start = cache->start_free;
-    ccache_node_t *node;
+    ccache_freearea_t *freearea = &(cache->freearea[index]);
+    int size = freearea->size;
+    ccache_node_t *node = NULL;
+    ccache_node_t *head = NULL, *last = NULL;
 
-    for (i = 0; i < cache->freeareanum; ++i)
+    for (i = 0; i < CCACHE_PREALLOC_NODE_NUM; ++i, start += size)
     {
-        node = (ccache_node_t*)start; 
-        cache->freearea[i].lrufirst = cache->freearea[i].lrulast = node; 
-        
+        node = (ccache_node_t*)start;
         node->hashindex = CCACHE_INVALID_HASHINDEX;
-        node->freeareaid = i;
+        node->freeareaid = index;
         node->datasize = node->keysize = 0;
-        node->lrunext = node->lruprev = NULL;
+
+        if (!head)
+        {
+            head = node;
+            node->lruprev = NULL;
+        }
+        else
+        {
+            last->lrunext = node;
+            node->lruprev = last;
+        }
+
+        last = node;
+
 #ifdef CCACHE_USE_LIST
         node->next = node->prev = NULL;
 #elif defined CCACHE_USE_RBTREE
         node->parent = node->left = node->right = NULL;
 #endif
-
-        start += cache->freearea[i].size;
     }
-    cache->start_free = start;
+
+    freearea->lrufirst = head;
+    freearea->lrulast = node;
+    node->lrunext = NULL;
+
+    return (start);
+}
+
+int 
+ccache_prealloc(ccache_t *cache)
+{
+    int i;
+    char *start = cache->start_free;
+    ccache_node_t *node;
+
+    if (CCACHE_PREALLOC_NODE_NUM > 0)
+    {
+        for (i = 0; i < cache->freeareanum; ++i)
+        {
+            start = ccache_prealloc_freearea(cache, i, start);
+        }
+        cache->start_free = start;
+    }
+
 
     return 0;
 }

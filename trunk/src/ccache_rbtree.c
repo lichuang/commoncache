@@ -151,18 +151,18 @@ ccache_rbtree_insert_rebalance(ccache_node_t* root, ccache_node_t* node)
 {
     ccache_node_t *parent, *gparent, *uncle, *tmp;
 
-    while ((parent = node->parent) && RED == parent->color)
+    while ((parent = node->parent) && CCACHE_COLOR_RED == parent->color)
     {
         gparent = parent->parent;
 
         if (parent == gparent->left)
         {
             uncle = gparent->right;
-            if (uncle && RED == uncle->color)
+            if (uncle && CCACHE_COLOR_RED == uncle->color)
             {
-                uncle->color = BLACK;
-                parent->color = BLACK;
-                gparent->color = RED;
+                uncle->color = CCACHE_COLOR_BLACK;
+                parent->color = CCACHE_COLOR_BLACK;
+                gparent->color = CCACHE_COLOR_RED;
                 node = gparent;
             }
             else
@@ -175,19 +175,19 @@ ccache_rbtree_insert_rebalance(ccache_node_t* root, ccache_node_t* node)
                     node = tmp;
                 }
 
-                parent->color = BLACK;
-                gparent->color = RED;
+                parent->color = CCACHE_COLOR_BLACK;
+                gparent->color = CCACHE_COLOR_RED;
                 root = ccache_rbtree_rotate_right(gparent, root);
             }
         } 
         else 
         {
             uncle = gparent->left;
-            if (uncle && uncle->color == RED)
+            if (uncle && uncle->color == CCACHE_COLOR_RED)
             {
-                uncle->color = BLACK;
-                parent->color = BLACK;
-                gparent->color = RED;
+                uncle->color = CCACHE_COLOR_BLACK;
+                parent->color = CCACHE_COLOR_BLACK;
+                gparent->color = CCACHE_COLOR_RED;
                 node = gparent;
             }
             else
@@ -200,14 +200,14 @@ ccache_rbtree_insert_rebalance(ccache_node_t* root, ccache_node_t* node)
                     node = tmp;
                 }
 
-                parent->color = BLACK;
-                gparent->color = RED;
+                parent->color = CCACHE_COLOR_BLACK;
+                gparent->color = CCACHE_COLOR_RED;
                 root = ccache_rbtree_rotate_left(gparent, root);
             }
         }
     }
 
-    root->color = BLACK;
+    root->color = CCACHE_COLOR_BLACK;
 
     return root;
 }
@@ -217,42 +217,42 @@ ccache_rbtree_erase_rebalance(ccache_node_t* root, ccache_node_t* node, ccache_n
 {
     ccache_node_t *other, *left, *right;
 
-    while ((!node || BLACK == node->color) && node != root)
+    while ((!node || CCACHE_COLOR_BLACK == node->color) && node != root)
     {
         if (parent->left == node)
         {
             other = parent->right;
-            if (RED == other->color)
+            if (CCACHE_COLOR_RED == other->color)
             {
-                other->color = BLACK;
-                parent->color = RED;
+                other->color = CCACHE_COLOR_BLACK;
+                parent->color = CCACHE_COLOR_RED;
                 root = ccache_rbtree_rotate_left(parent, root);
                 other = parent->right;
             }
-            if ((!other->left  || BLACK == other->left->color) &&
-                (!other->right || BLACK == other->right->color))
+            if ((!other->left  || CCACHE_COLOR_BLACK == other->left->color) &&
+                (!other->right || CCACHE_COLOR_BLACK == other->right->color))
             {
-                other->color = RED;
+                other->color = CCACHE_COLOR_RED;
                 node = parent;
                 parent = node->parent;
             }
             else
             {
-                if (!other->right || BLACK == other->right->color)
+                if (!other->right || CCACHE_COLOR_BLACK == other->right->color)
                 {
                     if ((left = other->left))
                     {
-                        left->color = BLACK;
+                        left->color = CCACHE_COLOR_BLACK;
                     }
-                    other->color = RED;
+                    other->color = CCACHE_COLOR_RED;
                     root = ccache_rbtree_rotate_right(other, root);
                     other = parent->right;
                 }
                 other->color = parent->color;
-                parent->color = BLACK;
+                parent->color = CCACHE_COLOR_BLACK;
                 if (other->right)
                 {
-                    other->right->color = BLACK;
+                    other->right->color = CCACHE_COLOR_BLACK;
                 }
                 root = ccache_rbtree_rotate_left(parent, root);
                 node = root;
@@ -262,37 +262,37 @@ ccache_rbtree_erase_rebalance(ccache_node_t* root, ccache_node_t* node, ccache_n
         else
         {
             other = parent->left;
-            if (RED == other->color)
+            if (CCACHE_COLOR_RED == other->color)
             {
-                other->color = BLACK;
-                parent->color = RED;
+                other->color = CCACHE_COLOR_BLACK;
+                parent->color = CCACHE_COLOR_RED;
                 root = ccache_rbtree_rotate_right(parent, root);
                 other = parent->left;
             }
-            if ((!other->left  || BLACK == other->left->color) &&
-                (!other->right || BLACK == other->right->color))
+            if ((!other->left  || CCACHE_COLOR_BLACK == other->left->color) &&
+                (!other->right || CCACHE_COLOR_BLACK == other->right->color))
             {
-                other->color = RED;
+                other->color = CCACHE_COLOR_RED;
                 node = parent;
                 parent = node->parent;
             }
             else
             {
-                if (!other->left || BLACK == other->left->color)
+                if (!other->left || CCACHE_COLOR_BLACK == other->left->color)
                 {
                     if ((right = other->right))
                     {
-                        right->color = BLACK;
+                        right->color = CCACHE_COLOR_BLACK;
                     }
-                    other->color = RED;
+                    other->color = CCACHE_COLOR_RED;
                     root = ccache_rbtree_rotate_left(other, root);
                     other = parent->left;
                 }
                 other->color = parent->color;
-                parent->color = BLACK;
+                parent->color = CCACHE_COLOR_BLACK;
                 if (other->left)
                 {
-                    other->left->color = BLACK;
+                    other->left->color = CCACHE_COLOR_BLACK;
                 }
                 root = ccache_rbtree_rotate_right(parent, root);
                 node = root;
@@ -303,7 +303,7 @@ ccache_rbtree_erase_rebalance(ccache_node_t* root, ccache_node_t* node, ccache_n
 
     if (node)
     {
-        node->color = BLACK;
+        node->color = CCACHE_COLOR_BLACK;
     } 
 
     return root;
@@ -339,7 +339,7 @@ ccache_rbtree_insert_auxiliary(int hashindex, ccache_node_t* node, ccache_node_t
 
     node->parent = parent;   
     node->left = node->right = NULL;
-    node->color = RED;
+    node->color = CCACHE_COLOR_RED;
 
     cache->hashitem[hashindex].root = ccache_rbtree_insert_rebalance(root, node);
     cache->hashitem[hashindex].nodenum++;
@@ -549,7 +549,7 @@ ccache_rbtree_erase(int hashindex, ccache_node_t* node, ccache_t* cache)
         }
     }
 
-    if (BLACK == color)
+    if (CCACHE_COLOR_BLACK == color)
     {
         root = ccache_rbtree_erase_rebalance(root, child, parent);
     }
