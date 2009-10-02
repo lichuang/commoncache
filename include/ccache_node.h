@@ -12,8 +12,8 @@
 #ifdef CCACHE_USE_RBTREE
 typedef enum ccache_color_t
 {
-    RED     = 0,
-    BLACK   = 1
+    CCACHE_COLOR_RED     = 0,
+    CCACHE_COLOR_BLACK   = 1
 }ccache_color_t;
 #endif
 
