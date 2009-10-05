@@ -136,25 +136,21 @@ typedef struct ccache_t
 }ccache_t;
 
 /**
- * @brief   create a ccache_t pointer 
- * @param   datasize: the data size contained in cache
- * @param   hashitemnum: the hash item number in the cache
- * @param   mapfilename: the share memory file name
- * @param   min_size: the min size of the node data zone, if init is not set, ignore this param
- * @param   max_size: the max size of the node data zone, if init is not set, ignore this param
+ * @brief   open a ccache 
+ * @param   configfile: the config file path
  * @param   init: flag if or not initialise the cache, if the share memory file not exist or the 
  *          size of the file is not the same as required, the function will ignore the init 
  *          agrument and the cache will be initialised 
  * @return  NULL if failed
  */
-ccache_t*    ccache_create(int datasize, int hashitemnum, const char* mapfilename, int min_size, int max_size, int init);
+ccache_t*    ccache_open(const char *configfile, int init);
 
 /**
- * @brief   destroy a ccache pointer
+ * @brief   close a ccache 
  * @param   
  * @return  
  */
-void         ccache_destroy(ccache_t *cache);
+void         ccache_close(ccache_t *cache);
 
 /**
  * @brief   insert a data into the cache

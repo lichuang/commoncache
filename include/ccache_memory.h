@@ -1,6 +1,6 @@
 /********************************************************************
 	created:	2008/01/23
-	filename: 	memory.h
+	filename: 	ccache_memory.h
 	author:		Lichuang
                 
 	purpose:    

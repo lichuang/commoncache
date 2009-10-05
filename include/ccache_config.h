@@ -1,17 +1,23 @@
-/********************************************************************
-	created:	2008/08/04
-	filename: 	ccache_config.h
-	author:		Lichuang
-                
-	purpose:    
-*********************************************************************/
 
 #ifndef __CCACHE_CONFIG_H__
 #define __CCACHE_CONFIG_H__
 
-#define CCACHE_ALIGNSIZE            8           /* align size */
-#define CCACHE_USE_PREALLOC                     /* if or not use prealloc */
-#define CCACHE_PREALLOC_NODE_NUM    1          /* how many nodes per hashitem to be prealloced */
+typedef struct ccache_config_t
+{
+    char    *path;          /* the map file path */
+    int     min_size;
+    int     max_size;
+    int     hashitem;
+    int     datasize;
+    char    prealloc;
+    int     prealloc_num;
+    int     align_size;
+} ccache_config_t;
+
+extern ccache_config_t ccache_config;
+extern int ccache_align_size;
+
+int ccache_init_config(const char *configfile);
 
 #endif /* __CCACHE_CONFIG_H__ */
 

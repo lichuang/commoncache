@@ -1,6 +1,6 @@
 /********************************************************************
 	created:	2008/01/24
-	filename: 	memory.c
+	filename: 	ccache_memory.c
 	author:		Lichuang
                 
 	purpose:    
@@ -151,7 +151,7 @@ ccache_init_freearea(ccache_t *cache, int datasize, int min_size, int max_size)
     for (i = 0; size <= max_size; ++i)
     {
         size = ccache_round_up(size);
-        nodesize -= sizeof(struct ccache_freearea_t) + size * CCACHE_PREALLOC_NODE_NUM;
+        nodesize -= sizeof(struct ccache_freearea_t) + size * ccache_config.prealloc_num;
         if (0 > nodesize)
         {
             fprintf(stderr, "not enough memory for prealloc!\n");
@@ -159,7 +159,7 @@ ccache_init_freearea(ccache_t *cache, int datasize, int min_size, int max_size)
         }
 
         cache->freearea[i].size = size;
-        size += CCACHE_ALIGNSIZE;
+        size += ccache_config.align_size;
     }
 
     cache->freeareanum = i;
@@ -178,7 +178,7 @@ ccache_prealloc_freearea(ccache_t *cache, int index, char *start)
     ccache_node_t *node = NULL;
     ccache_node_t *head = NULL, *last = NULL;
 
-    for (i = 0; i < CCACHE_PREALLOC_NODE_NUM; ++i, start += size)
+    for (i = 0; i < ccache_config.prealloc_num; ++i, start += size)
     {
         node = (ccache_node_t*)start;
         node->hashindex = CCACHE_INVALID_HASHINDEX;
@@ -218,7 +218,7 @@ ccache_prealloc(ccache_t *cache)
     int i;
     char *start = cache->start_free;
 
-    if (CCACHE_PREALLOC_NODE_NUM > 0)
+    if (ccache_config.prealloc_num > 0)
     {
         for (i = 0; i < cache->freeareanum; ++i)
         {
@@ -236,7 +236,7 @@ ccache_prealloc(ccache_t *cache)
 int 
 ccache_round_up(int size)
 {
-    return (size + (CCACHE_ALIGNSIZE) - 1) & ~((CCACHE_ALIGNSIZE) - 1);
+    return (size + (ccache_align_size) - 1) & ~((ccache_align_size) - 1);
 }
 
 /*
@@ -251,7 +251,7 @@ ccache_get_freeareaid(ccache_t *cache, int *size)
     offset = *size - cache->freearea[0].size;
     if (offset > 0)
     {
-        i = (offset / CCACHE_ALIGNSIZE) + 1;
+        i = (offset / ccache_align_size) + 1;
         if (i >= cache->freeareanum)
         {
             return -1;
