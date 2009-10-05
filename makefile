@@ -21,7 +21,8 @@ INCLUDE=-I$(INCLUDE_DIR)
 CC=gcc
 STRIP=strip
 #CFLAGS=-Wall -W -g -DCCACHE_USE_LIST
-CFLAGS=-Wall -W -g -DCCACHE_USE_RBTREE
+CONFIGURE=-DCCACHE_USE_RBTREE
+CFLAGS=-Wall -W -g 
 STRIP_FLAGS=-g
 
 .PHONY: all clean rebuild
@@ -37,7 +38,7 @@ $(DEPS_DIR)/%.d: $(SRC_DIR)/%.$(EXTENSION)
 	rm -f temp
 
 $(OBJ_DIR)/%.o:$(SRC_DIR)/%.$(EXTENSION) 
-	$(CC) $< -o $@ -c $(CFLAGS) $(INCLUDE) 
+	$(CC) $< -o $@ -c $(CFLAGS) $(CONFIGURE) $(INCLUDE) 
 
 test_fix_cache:test/test_fix_cache.c $(LIB)
 	$(CC) -o $(TEST_FIX_CACHE) $(TESTDIR)/test_fix_cache.c -L$(INSTALL_DIR) -l$(LIBNAME) $(CFLAGS) $(INCLUDE) -lpthread
