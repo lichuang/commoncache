@@ -11,12 +11,14 @@
 #include "ccache_lrulist.h"
 #include "ccache_functor.h"
 #include "ccache_memory.h"
+#include "ccache_config.h"
+
 #ifdef CCACHE_USE_LIST
     #include "ccache_list.h"
 #elif defined CCACHE_USE_RBTREE    
     #include "ccache_rbtree.h"
 #else
-    #error "MUST define CCACHE_USE_LIST or CCACHE_USE_RBTREE in makefile"
+    #error MUST define CCACHE_USE_LIST or CCACHE_USE_RBTREE in makefile
 #endif
 
 #include <string.h>
@@ -24,19 +26,28 @@
 static int ccache_count_cache_size(int datasize, int hashitemnum);
 
 ccache_t* 
-ccache_create(int datasize, int hashitemnum, const char* mapfilename, int min_size, int max_size, int init)
+ccache_open(const char *configfile, int init)
 {
-    int filesize = ccache_count_cache_size(datasize, hashitemnum);
-    ccache_t *cache = ccache_create_mmap(filesize, mapfilename, &init);
+    int filesize;
+    ccache_t *cache;
+
+    if (ccache_init_config(configfile) < 0)
+    {
+        CCACHE_SET_ERROR_NUM(CCACHE_INIT_ERROR);
+        return NULL;
+    }
+
+    filesize = ccache_count_cache_size(ccache_config.datasize, ccache_config.hashitem);
+    cache = ccache_create_mmap(filesize, ccache_config.path, &init);
     
-    if (NULL == cache)
+    if (!cache)
     {
         CCACHE_SET_ERROR_NUM(CCACHE_NULL_POINTER);
         return NULL;
     }
 
     /* no matter if or not the init is set, we will init the thread lock */
-    if (0 > ccache_init_thread_rwlock(&(cache->lock)))
+    if (ccache_init_thread_rwlock(&(cache->lock)) < 0)
     {
         CCACHE_SET_ERROR_NUM(CCACHE_INIT_ERROR);
         return NULL;
@@ -45,21 +56,21 @@ ccache_create(int datasize, int hashitemnum, const char* mapfilename, int min_si
     if (init)
     {
         cache->filesize = filesize;
-        cache->hashitemnum = hashitemnum;
+        cache->hashitemnum = ccache_config.hashitem;
 
-        cache->datasize = datasize;
+        cache->datasize = ccache_config.datasize;
 
-        if (0 > ccache_init_functor(&(cache->functor)))
+        if (ccache_init_functor(&(cache->functor)) < 0)
         {
             CCACHE_SET_ERROR_NUM(CCACHE_INIT_ERROR);
             return NULL;
         }
-        if (0 > ccache_init_hashitem(cache))
+        if (ccache_init_hashitem(cache) < 0)
         {
             CCACHE_SET_ERROR_NUM(CCACHE_INIT_ERROR);
             return NULL;
         }
-        if (0 > ccache_init_freearea(cache, datasize, min_size, max_size))
+        if (ccache_init_freearea(cache, ccache_config.datasize, ccache_config.min_size, ccache_config.max_size) < 0)
         {
             CCACHE_SET_ERROR_NUM(CCACHE_INIT_ERROR);
             return NULL;
@@ -72,7 +83,7 @@ ccache_create(int datasize, int hashitemnum, const char* mapfilename, int min_si
 }
 
 void 
-ccache_destroy(ccache_t *cache)
+ccache_close(ccache_t *cache)
 {
     pthread_rwlock_destroy(&(cache->lock));
     ccache_destroy_mmap(cache);
