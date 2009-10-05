@@ -96,7 +96,7 @@ ccache_insert(const ccache_data_t *data, ccache_t *cache, ccache_compare_t compa
     int hashindex = ccache_hash(data->key, data->keysize, cache), exist;
     ccache_node_t *node;
 
-    if (0 > pthread_rwlock_wrlock(&(cache->lock)))
+    if (pthread_rwlock_wrlock(&(cache->lock)) < 0)
     {
         CCACHE_SET_ERROR_NUM(CCACHE_LOCK_ERROR);
         return -1;
@@ -119,7 +119,7 @@ ccache_insert(const ccache_data_t *data, ccache_t *cache, ccache_compare_t compa
         ccache_lrulist_advance(node, cache);
     }
 
-    if (0 > pthread_rwlock_unlock(&(cache->lock)))
+    if (pthread_rwlock_unlock(&(cache->lock)) < 0)
     {
         CCACHE_SET_ERROR_NUM(CCACHE_LOCK_ERROR);
         return -1;
@@ -142,7 +142,7 @@ ccache_find(ccache_data_t *data, ccache_t *cache, ccache_compare_t compare)
     int hashindex = ccache_hash(data->key, data->keysize, cache);
     ccache_node_t *node;
 
-    if (0 > pthread_rwlock_wrlock(&(cache->lock)))
+    if (pthread_rwlock_wrlock(&(cache->lock)) < 0)
     {
         CCACHE_SET_ERROR_NUM(CCACHE_LOCK_ERROR);
         return -1;
@@ -162,7 +162,7 @@ ccache_find(ccache_data_t *data, ccache_t *cache, ccache_compare_t compare)
         cache->stat.find_stat.fail_num++;
     }
 
-    if (0 > pthread_rwlock_unlock(&(cache->lock)))
+    if (pthread_rwlock_unlock(&(cache->lock)) < 0)
     {
         CCACHE_SET_ERROR_NUM(CCACHE_LOCK_ERROR);
         return -1;
@@ -185,7 +185,7 @@ ccache_update(const ccache_data_t *data, ccache_t *cache, ccache_compare_t compa
     int hashindex = ccache_hash(data->key, data->keysize, cache);
     ccache_node_t *node;
 
-    if (0 > pthread_rwlock_wrlock(&(cache->lock)))
+    if (pthread_rwlock_wrlock(&(cache->lock)) < 0)
     {
         CCACHE_SET_ERROR_NUM(CCACHE_LOCK_ERROR);
         return -1;
@@ -205,7 +205,7 @@ ccache_update(const ccache_data_t *data, ccache_t *cache, ccache_compare_t compa
         cache->stat.update_stat.fail_num++;
     }
 
-    if (0 > pthread_rwlock_unlock(&(cache->lock)))
+    if (pthread_rwlock_unlock(&(cache->lock)) < 0)
     {
         CCACHE_SET_ERROR_NUM(CCACHE_LOCK_ERROR);
         return -1;
@@ -228,7 +228,7 @@ ccache_erase(ccache_data_t *data, ccache_t *cache, ccache_compare_t compare)
     int hashindex = ccache_hash(data->key, data->keysize, cache);
     ccache_node_t *node;
 
-    if (0 > pthread_rwlock_wrlock(&(cache->lock)))
+    if (pthread_rwlock_wrlock(&(cache->lock)) < 0)
     {
         CCACHE_SET_ERROR_NUM(CCACHE_LOCK_ERROR);
         return -1;
@@ -264,7 +264,7 @@ ccache_erase(ccache_data_t *data, ccache_t *cache, ccache_compare_t compare)
         cache->stat.erase_stat.fail_num++;
     }
 
-    if (0 > pthread_rwlock_unlock(&(cache->lock)))
+    if (pthread_rwlock_unlock(&(cache->lock)) < 0)
     {
         CCACHE_SET_ERROR_NUM(CCACHE_LOCK_ERROR);
         return -1;
@@ -288,7 +288,7 @@ ccache_replace(ccache_data_t *data, ccache_t *cache, ccache_compare_t compare,
     int hashindex = ccache_hash(data->key, data->keysize, cache);
     ccache_node_t *node;
 
-    if (0 > pthread_rwlock_wrlock(&(cache->lock)))
+    if (pthread_rwlock_wrlock(&(cache->lock)) < 0)
     {
         CCACHE_SET_ERROR_NUM(CCACHE_LOCK_ERROR);
         return -1;
@@ -307,7 +307,7 @@ ccache_replace(ccache_data_t *data, ccache_t *cache, ccache_compare_t compare,
         cache->stat.replace_stat.fail_num++;
     }
 
-    if (0 > pthread_rwlock_unlock(&(cache->lock)))
+    if (pthread_rwlock_unlock(&(cache->lock)) < 0)
     {
         CCACHE_SET_ERROR_NUM(CCACHE_LOCK_ERROR);
         return -1;
@@ -329,7 +329,7 @@ ccache_visit(ccache_t *cache, ccache_visit_t visit, void* arg)
 {
     int hashindex;
 
-    if (0 > pthread_rwlock_rdlock(&(cache->lock)))
+    if (pthread_rwlock_rdlock(&(cache->lock)) < 0)
     {
         CCACHE_SET_ERROR_NUM(CCACHE_LOCK_ERROR);
         return -1;
@@ -340,7 +340,7 @@ ccache_visit(ccache_t *cache, ccache_visit_t visit, void* arg)
         cache->functor.visit(cache, hashindex, visit, arg);
     }
 
-    if (0 > pthread_rwlock_unlock(&(cache->lock)))
+    if (pthread_rwlock_unlock(&(cache->lock)) < 0)
     {
         CCACHE_SET_ERROR_NUM(CCACHE_LOCK_ERROR);
         return -1;
