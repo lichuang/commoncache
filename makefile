@@ -6,6 +6,7 @@ INCLUDE_DIR=$(DIR)/include
 OBJ_DIR=$(DIR)/obj
 DEPS_DIR=$(DIR)/deps
 LIBNAME=ccache
+LIB_NAME=lib$(LIBNAME).a
 LIB=$(LIB_DIR)/lib$(LIBNAME).a
 TEST_FIX_CACHE=$(BIN_DIR)/test_fix_cache
 TEST_UNFIX_CACHE=$(BIN_DIR)/test_unfix_cache
@@ -25,7 +26,7 @@ CONFIGURE=-DCCACHE_USE_RBTREE
 CFLAGS=-Wall -W -g 
 STRIP_FLAGS=-g
 
-.PHONY: all clean rebuild
+.PHONY: all clean install uninstall rebuild
 
 all:$(OBJS)
 	ar rcs $(LIB) $(OBJS)
@@ -49,6 +50,9 @@ test_unfix_cache:test/test_unfix_cache.c $(LIB)
 install:
 	$(STRIP) $(STRIP_FLAGS) $(LIB)
 	cp $(LIB) $(INSTALL_DIR)
+
+uninstall:
+	rm -f $(INSTALL_DIR)/$(LIB_NAME)
 
 rebuild: clean all
 
