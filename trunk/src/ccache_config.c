@@ -15,12 +15,11 @@
 #include "ccache_config.h"
 #include "ccache_util.h"
 
-ccache_config_t ccache_config;
-int ccache_align_size;
+ccache_config_t cache_config;
+int cache_align_size;
 
 #define CCACHE_CONFIG_MAXLEN 50
 #define CCACHE_SECTION_NAME "[ccache_conf]"
-#define CCACHE_ITEM_UNSET -1
 
 enum 
 {
@@ -31,10 +30,10 @@ enum
 
 typedef enum ccache_itemtype_t
 {
+    CCACHE_ITEM_UNSET   = -1,
     CCACHE_ITEM_STRING,
     CCACHE_ITEM_INT,
     CCACHE_ITEM_BOOL,
-    CCACHE_ITEM_INVALID
 }ccache_itemtype_t;
 
 typedef struct ccache_conf_item_t
@@ -42,13 +41,13 @@ typedef struct ccache_conf_item_t
     char *name;
     ccache_itemtype_t type;
     int offset;
-    int (*set)(char *buffer, int offset);
+    int (*set)(void *p, char *buffer);
     char *defval;
 }ccache_conf_item_t;
 
-static int ccache_item_set_string(char *buffer, int offset);
-static int ccache_item_set_int(char *buffer, int offset);
-static int ccache_item_set_bool(char *buffer, int offset);
+static int ccache_item_set_string(void *p, char *buffer);
+static int ccache_item_set_int(void *p, char *buffer);
+static int ccache_item_set_bool(void *p, char *buffer);
 
 static ccache_conf_item_t ccache_conf_items[] = 
 {
@@ -57,13 +56,13 @@ static ccache_conf_item_t ccache_conf_items[] =
     {"max_size",    CCACHE_ITEM_INT,      offsetof(ccache_config_t, max_size),  ccache_item_set_int,    "32"},
     {"hashitem",    CCACHE_ITEM_INT,      offsetof(ccache_config_t, hashitem),  ccache_item_set_int,    "1000"},
     {"datasize",    CCACHE_ITEM_INT,      offsetof(ccache_config_t, datasize),  ccache_item_set_int,    "1000000"},
-    {"prealloc",    CCACHE_ITEM_BOOL,     offsetof(ccache_config_t, prealloc),  ccache_item_set_bool,   "1"},
     {"prealloc_num",CCACHE_ITEM_INT,      offsetof(ccache_config_t, prealloc_num), ccache_item_set_int, "100"},
     {"alignsize",   CCACHE_ITEM_INT,      offsetof(ccache_config_t, align_size), ccache_item_set_int, "8"},
-    {NULL,          CCACHE_ITEM_INVALID,  -1, NULL, NULL}
+    {"init",        CCACHE_ITEM_BOOL,     offsetof(ccache_config_t, init),      ccache_item_set_bool, "1"},
+    {NULL,          CCACHE_ITEM_UNSET,    -1,                       NULL,       NULL}
 };
 
-static int  ccache_init_defconfig();
+static int  ccache_init_defconfig(char init);
 static int  ccache_read_config(const char *configfile);
 static void ccache_process_section(char *buffer, int *state);
 static void ccache_process_item(char *buffer, int *state);
@@ -71,9 +70,9 @@ static void ccache_process_item(char *buffer, int *state);
 int 
 ccache_init_config(const char *configfile)
 {
-    memset((void*)&ccache_config, CCACHE_ITEM_UNSET, sizeof(ccache_config_t));
+    ccache_init_defconfig(1);
 
-    if (!configfile)
+    if (configfile)
     {
         if (0 > ccache_read_config(configfile))
         {
@@ -81,55 +80,75 @@ ccache_init_config(const char *configfile)
         }
     }
 
-    return ccache_init_defconfig();
+    return ccache_init_defconfig(0);
 }
 
 int
-ccache_init_defconfig()
+ccache_init_defconfig(char init)
 {
     int i;
-    char *p;
+    char *p, **pp;
     int  *np;
-    char *conf = (char*)(&ccache_config);
+    char *conf = (char*)(&cache_config);
     ccache_conf_item_t *item;
 
     for (i = 0; ccache_conf_items[i].name; ++i)
     {
         item = &(ccache_conf_items[i]);
 
-        if (item->type == CCACHE_ITEM_STRING) 
+        if (item->type == CCACHE_ITEM_INT)
         {
-            p = conf + item->offset;
-            if (p == (char*)CCACHE_ITEM_UNSET)
+            np = (int*)(conf + item->offset);
+
+            if (init)
             {
-                item->set(item->defval, item->offset);
+                *np = (int)CCACHE_ITEM_UNSET;
+            }
+            else if (*np == (int)CCACHE_ITEM_UNSET)
+            {
+                item->set(np, item->defval);
+            }
+        }
+        else if (item->type == CCACHE_ITEM_STRING) 
+        {
+            pp = (char**)(conf + item->offset);
+
+            if (init)
+            {
+                *pp = (char*)CCACHE_ITEM_UNSET;
+            }
+            else if (*pp == (char*)CCACHE_ITEM_UNSET)
+            {
+                item->set(pp, item->defval);
             }
         }
         else if (item->type == CCACHE_ITEM_BOOL)
         {
             p = conf + item->offset;
-            if (*p == (char)CCACHE_ITEM_UNSET)
+
+            if (init)
             {
-                item->set(item->defval, item->offset);
+                *p = (char)CCACHE_ITEM_UNSET;
             }
-        }
-        else if (item->type == CCACHE_ITEM_INT)
-        {
-            np = (int*)(conf + item->offset);
-            if (*p == (int)CCACHE_ITEM_UNSET)
+            else if (*p == (char)CCACHE_ITEM_UNSET)
             {
-                item->set(item->defval, item->offset);
+                item->set(p, item->defval);
             }
         }
     }
 
-    if (!ccache_ispowerof2(ccache_config.align_size))
+    if (init)
+    {
+        return 0;
+    }
+
+    if (!ccache_ispowerof2(cache_config.align_size))
     {
         fprintf(stderr, "align size must be power of 2!\n");
         return -1;
     }
 
-    ccache_align_size = ccache_config.align_size;
+    cache_align_size = cache_config.align_size;
 
     return 0;
 }
@@ -140,6 +159,7 @@ ccache_read_config(const char *configfile)
     int state = CCACHE_READ_SECTION;
     FILE *file;
     char buffer[CCACHE_CONFIG_MAXLEN];
+    int len;
 
     if(!(file = fopen(configfile, "r")))
     {
@@ -150,16 +170,20 @@ ccache_read_config(const char *configfile)
 
     while (state != CCACHE_READ_ERROR && fgets(buffer, sizeof(buffer), file))
     {
-        buffer[strlen(buffer)] = '\0';
+        if (!(len = strlen(buffer)))
+        {
+            continue;
+        }
+        buffer[len - 1]= '\0';
         ccache_string_trim(buffer);
 
-        if (state == CCACHE_READ_SECTION)
+        if (state == CCACHE_READ_ITEM)
         {
-            ccache_process_section(buffer, &state);
+            ccache_process_item(buffer, &state);
         }
         else
         {
-            ccache_process_item(buffer, &state);
+            ccache_process_section(buffer, &state);
         }
     }
 
@@ -190,24 +214,35 @@ ccache_process_item(char *buffer, int *state)
 {
     int i;
     ccache_conf_item_t *item;
+    char *p;
 
-    for (i = 0; ccache_conf_items[i].name; ++i)
+    for (i = 0, p = buffer; ccache_conf_items[i].name; ++i)
     {
         item = &(ccache_conf_items[i]);
+        buffer = p;
 
         if (!strncmp(buffer, item->name, strlen(item->name)))
         {
             buffer += strlen(item->name);
-            ccache_string_trim(buffer);
+
+            while (isspace(*buffer))
+            {
+                buffer++;
+            }
             if (*buffer != '=')
             {
-                fprintf(stderr, "process item %s error!\n", item->name);
-                break;
+                continue;
             }
-            buffer++;
-            ccache_string_trim(buffer);
 
-            item->set(buffer, item->offset);
+            buffer++;
+
+            while (isspace(*buffer))
+            {
+                buffer++;
+            }
+
+            item->set(((char*)&cache_config + item->offset), buffer);
+            return;
         }
     }
 
@@ -215,25 +250,24 @@ ccache_process_item(char *buffer, int *state)
 }
 
 int 
-ccache_item_set_string(char *buffer, int offset)
+ccache_item_set_string(void *p, char *buffer)
 {
-    char *p = (char*)(&ccache_config) + offset;
-
-    p = (char*)malloc(strlen(buffer) * sizeof(char*));
-    strcpy(p, buffer);
+    char **pp = (char**)p;
+    *pp = (char*)malloc(strlen(buffer) * sizeof(char*));
+    strcpy(*pp, buffer);
 
     return 1;
 }
 
 int 
-ccache_item_set_int(char *buffer, int offset)
+ccache_item_set_int(void *p, char *buffer)
 {
-    int *np = (int *)((char*)(&ccache_config) + offset);
-    char *p = buffer;
+    int *np = (int *)p;
+    char *pos;
 
-    while (p && *p)
+    for (pos = buffer; pos && *pos; pos++)
     {
-        if (!isdigit(*p))
+        if (!isdigit(*pos))
         {
             return -1;
         }
@@ -245,9 +279,9 @@ ccache_item_set_int(char *buffer, int offset)
 }
 
 int 
-ccache_item_set_bool(char *buffer, int offset)
+ccache_item_set_bool(void *p, char *buffer)
 {
-    char *np = (char*)(&ccache_config) + offset;
+    char *np = (char*)p;
 
     if (!strcmp(buffer, "1"))
     {
