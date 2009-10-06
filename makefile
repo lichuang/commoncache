@@ -47,7 +47,7 @@ test_fix_cache:test/test_fix_cache.c $(LIB)
 	$(CC) -o $(TEST_FIX_CACHE) $(TESTDIR)/test_fix_cache.c -L$(INSTALL_DIR) -l$(LIBNAME) $(CFLAGS) -lpthread
 
 test_unfix_cache:test/test_unfix_cache.c $(LIB)
-	$(CC) -o $(TEST_UNFIX_CACHE) $(TESTDIR)/test_unfix_cache.c -L$(INSTALL_DIR) -l$(LIBNAME) $(CFLAGS) $(INCLUDE) -lpthread
+	$(CC) -o $(TEST_UNFIX_CACHE) $(TESTDIR)/test_unfix_cache.c -L$(INSTALL_DIR) -l$(LIBNAME) $(CFLAGS) -lpthread
 
 install:
 	$(STRIP) $(STRIP_FLAGS) $(LIB)
