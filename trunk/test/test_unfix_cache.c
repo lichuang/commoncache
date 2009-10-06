@@ -18,8 +18,7 @@
 #include <signal.h>
 #include <arpa/inet.h>
 
-#include "ccache.h"
-#include "memory.h"
+#include <ccache/ccache.h>
 
 ccache_t* cache;
 
