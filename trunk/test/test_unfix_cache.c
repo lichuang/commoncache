@@ -32,14 +32,14 @@ int isparent = 0;
 
 int main()
 {
-    cache = ccache_create(75000, 100, "./testunfixmap", 10, 810, 1);
+    cache = ccache_open("../conf/unfix_cache.conf");
     if (NULL == cache)
     {
         printf("create_cache error!\n");
         return -1;
     }
 
-#if 1    
+#if 0    
     createchild(20);
 #else    
     isparent = 1;
