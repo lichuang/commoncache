@@ -73,10 +73,10 @@ typedef struct ccache_functor_t
                             ccache_erase_t erase, void* arg, int *exist);
 
     /*
-     * replace a data in the hashindex hashtable,
+     * set a data in the hashindex hashtable,
      * if the key exist, insert the data 
      */
-    ccache_node_t* (*replace)(int hashindex, ccache_data_t *data,
+    ccache_node_t* (*set)(int hashindex, ccache_data_t *data,
                             struct ccache_t *cache, ccache_compare_t cmp, 
                             ccache_erase_t erase, void* arg, ccache_update_t update);
 
@@ -110,7 +110,7 @@ typedef struct ccache_stat_t
 {
     ccache_stat_count_t find_stat;
     ccache_stat_count_t update_stat;
-    ccache_stat_count_t replace_stat;
+    ccache_stat_count_t set_stat;
     ccache_stat_count_t insert_stat;
     ccache_stat_count_t erase_stat;
 }ccache_stat_t;
@@ -192,8 +192,7 @@ int         ccache_update(const ccache_data_t *data, ccache_t *cache, ccache_com
 int         ccache_erase(ccache_data_t *data, ccache_t *cache, ccache_compare_t compare);
 
 /**
- * @brief   if the key does not in the cache, insert the data in the cache, 
- *          otherwise use the update function to update the node in the cache
+ * @brief   set the key with the data, no matter if or not the key exists
  * @param   data:   the data updated to the node, if success, the new value of node contained in this data,so it must not be NULL
  * @param   cache: the cache pointer
  * @param   compare: the function used to compare key
@@ -201,7 +200,7 @@ int         ccache_erase(ccache_data_t *data, ccache_t *cache, ccache_compare_t 
  * @param   update: the function used to update node
  * @return  0 if success, -1 if failed
  */
-int         ccache_replace(ccache_data_t *data, ccache_t *cache, ccache_compare_t compare,
+int         ccache_set(ccache_data_t *data, ccache_t *cache, ccache_compare_t compare,
                         ccache_erase_t erase, void* arg, ccache_update_t update);
 
 /**
