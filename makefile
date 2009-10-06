@@ -12,11 +12,13 @@ TEST_FIX_CACHE=$(BIN_DIR)/test_fix_cache
 TEST_UNFIX_CACHE=$(BIN_DIR)/test_unfix_cache
 TESTDIR=$(DIR)/test
 INSTALL_DIR=/usr/lib
+INSTALL_INCLUDE_DIR=/usr/include/ccache
 
 EXTENSION=c
 OBJS=$(patsubst $(SRC_DIR)/%.$(EXTENSION), $(OBJ_DIR)/%.o,$(wildcard $(SRC_DIR)/*.$(EXTENSION)))
 DEPS=$(patsubst $(OBJ_DIR)/%.o, $(DEPS_DIR)/%.d, $(OBJS))
 
+INCLUDE_FILES="ccache.h ccache_error.h ccache_hash.h ccache_node.h"
 INCLUDE=-I$(INCLUDE_DIR)
 
 CC=gcc
@@ -42,7 +44,7 @@ $(OBJ_DIR)/%.o:$(SRC_DIR)/%.$(EXTENSION)
 	$(CC) $< -o $@ -c $(CFLAGS) $(CONFIGURE) $(INCLUDE) 
 
 test_fix_cache:test/test_fix_cache.c $(LIB)
-	$(CC) -o $(TEST_FIX_CACHE) $(TESTDIR)/test_fix_cache.c -L$(INSTALL_DIR) -l$(LIBNAME) $(CFLAGS) $(INCLUDE) -lpthread
+	$(CC) -o $(TEST_FIX_CACHE) $(TESTDIR)/test_fix_cache.c -L$(INSTALL_DIR) -l$(LIBNAME) $(CFLAGS) -lpthread
 
 test_unfix_cache:test/test_unfix_cache.c $(LIB)
 	$(CC) -o $(TEST_UNFIX_CACHE) $(TESTDIR)/test_unfix_cache.c -L$(INSTALL_DIR) -l$(LIBNAME) $(CFLAGS) $(INCLUDE) -lpthread
@@ -50,9 +52,12 @@ test_unfix_cache:test/test_unfix_cache.c $(LIB)
 install:
 	$(STRIP) $(STRIP_FLAGS) $(LIB)
 	cp $(LIB) $(INSTALL_DIR)
+	test -d $(INSTALL_INCLUDE_DIR) || mkdir $(INSTALL_INCLUDE_DIR)
+	cp ${INCLUDE_DIR}/* ${INSTALL_INCLUDE_DIR}
 
 uninstall:
-	rm -f $(INSTALL_DIR)/$(LIB_NAME)
+	rm -f $(INSTALL_DIR)/$(LIB_NAME) 
+	rm -fr ${INSTALL_INCLUDE_DIR}
 
 rebuild: clean all
 
