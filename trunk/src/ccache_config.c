@@ -170,10 +170,17 @@ ccache_read_config(const char *configfile)
 
     while (state != CCACHE_READ_ERROR && fgets(buffer, sizeof(buffer), file))
     {
-        if (!(len = strlen(buffer)))
+        if ((len = strlen(buffer)) <= 1)
         {
             continue;
         }
+
+        /* lines begin with # is comment, ignore parsing */
+        if (*buffer == '#')
+        {
+            continue;
+        }
+
         buffer[len - 1]= '\0';
         ccache_string_trim(buffer);
 
