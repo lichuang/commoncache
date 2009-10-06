@@ -31,7 +31,7 @@ int isparent = 0;
 
 int main()
 {
-    cache = ccache_create(100000, 1, "./testmap", 30, 30, 1);
+    cache = ccache_open("../conf/fix_cache.conf");
     if (NULL == cache)
     {
         printf("create_cache error!\n");
@@ -49,6 +49,8 @@ int main()
     {
         print_cache_stat_info(cache);
     }
+
+    ccache_close(cache);
 
     return 0;
 }
