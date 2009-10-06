@@ -50,6 +50,8 @@ int main()
         print_cache_stat_info(cache);
     }
 
+    ccache_close(cache);
+
     return 0;
 }
 
