@@ -26,7 +26,7 @@ static ccache_node_t* ccache_list_insert(int hashindex, const ccache_data_t* dat
 static ccache_node_t* ccache_list_update(int hashindex, const ccache_data_t* data, 
                                         ccache_t* cache, ccache_compare_t compare);
 
-static ccache_node_t* ccache_list_replace(int hashindex, ccache_data_t* data, 
+static ccache_node_t* ccache_list_set(int hashindex, ccache_data_t* data, 
                                         ccache_t* cache, ccache_compare_t compare, 
                                         ccache_erase_t erase, void* arg, ccache_update_t update);
 
@@ -45,7 +45,7 @@ ccache_init_list_functor(ccache_functor_t *functor)
     functor->update     = ccache_list_update;
     functor->erase      = ccache_list_erase;
     functor->visit      = ccache_list_visit;
-    functor->replace    = ccache_list_replace;
+    functor->set    = ccache_list_set;
 
     return 0;
 #else
@@ -209,7 +209,7 @@ ccache_list_update(int hashindex, const ccache_data_t* data, ccache_t* cache, cc
 }
 
 ccache_node_t* 
-ccache_list_replace(int hashindex, ccache_data_t* data, struct ccache_t* cache,
+ccache_list_set(int hashindex, ccache_data_t* data, struct ccache_t* cache,
                     ccache_compare_t compare, ccache_erase_t erase, void* arg, ccache_update_t update)
 {
     ccache_node_t* node = ccache_list_find_auxiliary(hashindex, data, cache, compare);

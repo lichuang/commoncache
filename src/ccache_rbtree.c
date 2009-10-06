@@ -25,7 +25,7 @@ static ccache_node_t* ccache_rbtree_insert(int hashindex, const ccache_data_t* d
 static ccache_node_t* ccache_rbtree_update(int hashindex, const ccache_data_t* data,
                                         ccache_t* cache, ccache_compare_t compare);
 
-static ccache_node_t* ccache_rbtree_replace(int hashindex, ccache_data_t* data, 
+static ccache_node_t* ccache_rbtree_set(int hashindex, ccache_data_t* data, 
                                         ccache_t* cache, ccache_compare_t compare, 
                                         ccache_erase_t erase, void* arg, ccache_update_t update);
 
@@ -47,7 +47,7 @@ ccache_init_rbtree_functor(ccache_functor_t *functor)
     functor->update  = ccache_rbtree_update;
     functor->erase   = ccache_rbtree_erase;
     functor->visit   = ccache_rbtree_visit;
-    functor->replace = ccache_rbtree_replace;
+    functor->set = ccache_rbtree_set;
 
     return 0;
 #else
@@ -580,7 +580,7 @@ ccache_rbtree_update(int hashindex, const ccache_data_t* data, ccache_t* cache, 
 }
 
 ccache_node_t* 
-ccache_rbtree_replace(int hashindex, ccache_data_t* data, ccache_t* cache,
+ccache_rbtree_set(int hashindex, ccache_data_t* data, ccache_t* cache,
                     ccache_compare_t compare, ccache_erase_t erase, void* arg, ccache_update_t update)
 {
     ccache_node_t *node = NULL, *parent = NULL;

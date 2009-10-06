@@ -282,7 +282,7 @@ ccache_erase(ccache_data_t *data, ccache_t *cache, ccache_compare_t compare)
 }
 
 int 
-ccache_replace(ccache_data_t *data, ccache_t *cache, ccache_compare_t compare,
+ccache_set(ccache_data_t *data, ccache_t *cache, ccache_compare_t compare,
                 ccache_erase_t erase, void* arg, ccache_update_t update)
 {
     int hashindex = ccache_hash(data->key, data->keysize, cache);
@@ -294,17 +294,17 @@ ccache_replace(ccache_data_t *data, ccache_t *cache, ccache_compare_t compare,
         return -1;
     }
 
-    cache->stat.replace_stat.total_num++;
-    node = cache->functor.replace(hashindex, data, cache, compare, erase, arg, update);
+    cache->stat.set_stat.total_num++;
+    node = cache->functor.set(hashindex, data, cache, compare, erase, arg, update);
 
     if (node)
     {
-        cache->stat.replace_stat.success_num++;
+        cache->stat.set_stat.success_num++;
         ccache_lrulist_advance(node, cache);
     }
     else
     {
-        cache->stat.replace_stat.fail_num++;
+        cache->stat.set_stat.fail_num++;
     }
 
     if (pthread_rwlock_unlock(&(cache->lock)) < 0)
