@@ -69,7 +69,7 @@ void print_cache_stat_info(ccache_t* cache)
     printf("find: "); print_stat_info(&(cache->stat.find_stat));
     printf("insert: "); print_stat_info(&(cache->stat.insert_stat));
     printf("update: "); print_stat_info(&(cache->stat.update_stat));
-    printf("replace: "); print_stat_info(&(cache->stat.replace_stat));
+    printf("set: "); print_stat_info(&(cache->stat.set_stat));
     printf("erase: "); print_stat_info(&(cache->stat.erase_stat));
 }
 
@@ -213,12 +213,10 @@ void mainloop()
             }
 
             num = 1;
-            if (0 == ccache_replace(&data, cache, cmp_fun, del_fun, NULL, update_fun))
+            if (0 == ccache_set(&data, cache, cmp_fun, del_fun, NULL, update_fun))
             {
-                //printf("[pid = %d] replace <%s, %d> success!\n", getpid(), string, num);
+                //printf("[pid = %d] set <%s, %d> success!\n", getpid(), string, num);
             }
-
-			//* 把以下代码注释掉是为了测试ccache_del_t, 因为在节点不够用时需要进行节点的淘汰, 否则可以测试update, del操作            
             num = rand() + 123;
             if (0 > ccache_update(&data, cache, cmp_fun))
             {
