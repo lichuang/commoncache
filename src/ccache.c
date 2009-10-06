@@ -26,7 +26,7 @@
 static int ccache_count_cache_size(int datasize, int hashitemnum);
 
 ccache_t* 
-ccache_open(const char *configfile, int init)
+ccache_open(const char *configfile)
 {
     int filesize;
     ccache_t *cache;
@@ -37,8 +37,8 @@ ccache_open(const char *configfile, int init)
         return NULL;
     }
 
-    filesize = ccache_count_cache_size(ccache_config.datasize, ccache_config.hashitem);
-    cache = ccache_create_mmap(filesize, ccache_config.path, &init);
+    filesize = ccache_count_cache_size(cache_config.datasize, cache_config.hashitem);
+    cache = ccache_create_mmap(filesize, cache_config.path, &(cache_config.init));
     
     if (!cache)
     {
@@ -53,12 +53,12 @@ ccache_open(const char *configfile, int init)
         return NULL;
     }
 
-    if (init)
+    if (cache_config.init)
     {
         cache->filesize = filesize;
-        cache->hashitemnum = ccache_config.hashitem;
+        cache->hashitemnum = cache_config.hashitem;
 
-        cache->datasize = ccache_config.datasize;
+        cache->datasize = cache_config.datasize;
 
         if (ccache_init_functor(&(cache->functor)) < 0)
         {
@@ -70,7 +70,7 @@ ccache_open(const char *configfile, int init)
             CCACHE_SET_ERROR_NUM(CCACHE_INIT_ERROR);
             return NULL;
         }
-        if (ccache_init_freearea(cache, ccache_config.datasize, ccache_config.min_size, ccache_config.max_size) < 0)
+        if (ccache_init_freearea(cache, cache_config.datasize, cache_config.min_size, cache_config.max_size) < 0)
         {
             CCACHE_SET_ERROR_NUM(CCACHE_INIT_ERROR);
             return NULL;

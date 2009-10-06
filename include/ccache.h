@@ -138,12 +138,9 @@ typedef struct ccache_t
 /**
  * @brief   open a ccache 
  * @param   configfile: the config file path
- * @param   init: flag if or not initialise the cache, if the share memory file not exist or the 
- *          size of the file is not the same as required, the function will ignore the init 
- *          agrument and the cache will be initialised 
  * @return  NULL if failed
  */
-ccache_t*    ccache_open(const char *configfile, int init);
+ccache_t*    ccache_open(const char *configfile);
 
 /**
  * @brief   close a ccache 

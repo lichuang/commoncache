@@ -18,7 +18,7 @@ typedef struct ccache_freearea_t
     int size;
 }ccache_freearea_t;
 
-ccache_t*       ccache_create_mmap(int filesize, const char *mapfilename, int *init);
+ccache_t*       ccache_create_mmap(int filesize, const char *mapfilename, char *init);
 int             ccache_destroy_mmap(ccache_t *cache);
 ccache_node_t*  ccache_allocate(ccache_t *cache, int size, ccache_erase_t erase, void* arg);
 int             ccache_init_freearea(ccache_t *cache, int datasize, int min_size, int max_size);
