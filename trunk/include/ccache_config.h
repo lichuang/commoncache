@@ -9,17 +9,7 @@
 #ifndef __CCACHE_CONFIG_H__
 #define __CCACHE_CONFIG_H__
 
-typedef struct ccache_config_t
-{
-    char    *path;          /* the map file path */
-    int     min_size;
-    int     max_size;
-    int     hashitem;
-    int     datasize;
-    int     prealloc_num;
-    int     align_size;
-    char    init;
-} ccache_config_t;
+#include "ccache.h"
 
 extern ccache_config_t cache_config;
 extern int cache_align_size;
