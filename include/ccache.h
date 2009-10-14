@@ -62,30 +62,30 @@ typedef struct ccache_functor_t
      * find a data in the hashindex hashtable  
      */
     ccache_node_t* (*find)(int hashindex, const ccache_data_t *data, 
-                            struct ccache_t *cache, ccache_compare_t cmp);
+                            struct ccache_t *cache);
 
     /*
      * insert a data in the hashindex hashtable, if the key exist,
      * return the node and set exist 
      */
     ccache_node_t* (*insert)(int hashindex, const ccache_data_t *data,
-                            struct ccache_t *cache, ccache_compare_t cmp,
-                            ccache_erase_t erase, void* arg, int *exist);
+                            struct ccache_t *cache, ccache_erase_t erase, 
+                            void* arg, int *exist);
 
     /*
      * set a data in the hashindex hashtable,
      * if the key exist, insert the data 
      */
     ccache_node_t* (*set)(int hashindex, ccache_data_t *data,
-                            struct ccache_t *cache, ccache_compare_t cmp, 
-                            ccache_erase_t erase, void* arg, ccache_update_t update);
+                            struct ccache_t *cache, ccache_erase_t erase, 
+                            void* arg, ccache_update_t update);
 
     /*
      * update a data in the hashindex hashtable, 
      * if the key is not exist, return NULL
      */
     ccache_node_t* (*update)(int hashindex, const ccache_data_t *data, 
-                            struct ccache_t *cache, ccache_compare_t cmp);
+                            struct ccache_t *cache);
 
     /*
      * erase a data in the hashindex hashtable and return the erased node, 
@@ -138,9 +138,11 @@ typedef struct ccache_t
 /**
  * @brief   open a ccache 
  * @param   configfile: the config file path
+ * @param   compare: the function pointer used when comparing keys, if NULL, use
+ *          the memcmp function instead
  * @return  NULL if failed
  */
-ccache_t*    ccache_open(const char *configfile);
+ccache_t*    ccache_open(const char *configfile, ccache_compare_t compare);
 
 /**
  * @brief   close a ccache 
@@ -153,54 +155,49 @@ void         ccache_close(ccache_t *cache);
  * @brief   insert a data into the cache
  * @param   data: the data will be inserted
  * @param   cache: the cache pointer
- * @param   compare: the function used to compare key
  * @param   erase: when there is no more space to insert data, use LRU algorithm to allocate a new node, 
  *               this function used to manage the deleted node, if NULL delete the node directly
  * @param   arg: the argument passed to the erase function
  * @return  0 if success, -1 if failed
  */
 int         ccache_insert(const ccache_data_t *data, ccache_t *cache, 
-                        ccache_compare_t compare, ccache_erase_t erase, void* arg);
+                        ccache_erase_t erase, void* arg);
 
 /**
  * @brief   find a node in the cache
  * @param   data  if success, the value of the node contained in this data, so it must not be NULL
  * @param   cache: the cache pointer
- * @param   compare: the function used to compare key
  * @return  0 if success, -1 if failed
  */
-int         ccache_find(ccache_data_t *data, ccache_t *cache, ccache_compare_t compare);
+int         ccache_find(ccache_data_t *data, ccache_t *cache);
 
 /**
  * @brief   update a node in the cache
  * @param   data: the data will be update to the node,if success, the value of the node contained in this data,
  *          so it must not be NULL
  * @param   cache: the cache pointer
- * @param   compare: the function used to compare key
  * @return  0 if success, -1 if failed
  * @NOTE    the data size and key size MUST equal to the previous
  */
-int         ccache_update(const ccache_data_t *data, ccache_t *cache, ccache_compare_t compare);
+int         ccache_update(const ccache_data_t *data, ccache_t *cache);
 
 /**
  * @brief   erase a node in the cache
  * @param   data:  if success, the value of the deleted node contained in this data,so it must not be NULL
  * @param   cache: the cache pointer
- * @param   compare: the function used to compare key
  * @return  0 if success, -1 if failed
  */
-int         ccache_erase(ccache_data_t *data, ccache_t *cache, ccache_compare_t compare);
+int         ccache_erase(ccache_data_t *data, ccache_t *cache);
 
 /**
  * @brief   set the key with the data, no matter if or not the key exists
  * @param   data:   the data updated to the node, if success, the new value of node contained in this data,so it must not be NULL
  * @param   cache: the cache pointer
- * @param   compare: the function used to compare key
  * @param   arg: the argument passed to the erase function
  * @param   update: the function used to update node
  * @return  0 if success, -1 if failed
  */
-int         ccache_set(ccache_data_t *data, ccache_t *cache, ccache_compare_t compare,
+int         ccache_set(ccache_data_t *data, ccache_t *cache,
                         ccache_erase_t erase, void* arg, ccache_update_t update);
 
 /**
