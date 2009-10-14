@@ -17,24 +17,26 @@
 #ifdef CCACHE_USE_LIST
 
 static ccache_node_t* ccache_list_find(int hashindex, const ccache_data_t* data, 
-                                        ccache_t* cache, ccache_compare_t compare);
+                                        ccache_t* cache);
 
 static ccache_node_t* ccache_list_insert(int hashindex, const ccache_data_t* data, 
-                                        ccache_t* cache, ccache_compare_t compare,
-                                        ccache_erase_t erase, void* arg, int* exist);
+                                        ccache_t* cache, ccache_erase_t erase, 
+                                        void* arg, int* exist);
 
 static ccache_node_t* ccache_list_update(int hashindex, const ccache_data_t* data, 
-                                        ccache_t* cache, ccache_compare_t compare);
+                                        ccache_t* cache);
 
 static ccache_node_t* ccache_list_set(int hashindex, ccache_data_t* data, 
-                                        ccache_t* cache, ccache_compare_t compare, 
-                                        ccache_erase_t erase, void* arg, ccache_update_t update);
+                                        ccache_t* cache, ccache_erase_t erase, 
+                                        void* arg, ccache_update_t update);
 
 static ccache_node_t* ccache_list_erase(int hashindex, ccache_node_t* node, ccache_t* cache);
 
 static void           ccache_list_visit(ccache_t* cache, int hashindex, ccache_visit_t visit, void* arg);
 
 #endif
+
+extern ccache_compare_t cache_compare;
 
 int 
 ccache_init_list_functor(ccache_functor_t *functor)
@@ -58,7 +60,7 @@ ccache_init_list_functor(ccache_functor_t *functor)
 
 static ccache_node_t* 
 ccache_list_find_auxiliary(int hashindex, const ccache_data_t* data, 
-                    ccache_t* cache, ccache_compare_t compare)
+                    ccache_t* cache)
 {
     ccache_hash_t *hashitem = &cache->hashitem[hashindex];
     char* key = data->key;
@@ -67,7 +69,7 @@ ccache_list_find_auxiliary(int hashindex, const ccache_data_t* data,
 
     while (node)
     {
-        if (len == node->keysize && !compare(key, CCACHE_NODE_KEY(node), len))
+        if (len == node->keysize && !cache_compare(key, CCACHE_NODE_KEY(node), len))
         {
             break;
         }
@@ -160,9 +162,9 @@ ccache_list_advance(ccache_node_t* node, int hashindex, ccache_t* cache)
 }
 
 ccache_node_t* 
-ccache_list_find(int hashindex, const ccache_data_t* data, ccache_t* cache, ccache_compare_t compare)
+ccache_list_find(int hashindex, const ccache_data_t* data, ccache_t* cache)
 {
-    ccache_node_t* node = ccache_list_find_auxiliary(hashindex, data, cache, compare);
+    ccache_node_t* node = ccache_list_find_auxiliary(hashindex, data, cache);
 
     if (node)
     {
@@ -174,11 +176,11 @@ ccache_list_find(int hashindex, const ccache_data_t* data, ccache_t* cache, ccac
 
 ccache_node_t* 
 ccache_list_insert(int hashindex, const ccache_data_t* data, ccache_t* cache,
-                    ccache_compare_t compare, ccache_erase_t erase, void* arg, int* exist)
+                    ccache_erase_t erase, void* arg, int* exist)
 {
     ccache_node_t *node;
 
-    node = ccache_list_find_auxiliary(hashindex, data, cache, compare);
+    node = ccache_list_find_auxiliary(hashindex, data, cache);
     if (node)
     {
         *exist = 1;
@@ -192,9 +194,9 @@ ccache_list_insert(int hashindex, const ccache_data_t* data, ccache_t* cache,
 }
 
 ccache_node_t* 
-ccache_list_update(int hashindex, const ccache_data_t* data, ccache_t* cache, ccache_compare_t compare)
+ccache_list_update(int hashindex, const ccache_data_t* data, ccache_t* cache)
 {
-    ccache_node_t* node = ccache_list_find_auxiliary(hashindex, data, cache, compare);
+    ccache_node_t* node = ccache_list_find_auxiliary(hashindex, data, cache);
 
     if (!node)
     {
@@ -210,9 +212,9 @@ ccache_list_update(int hashindex, const ccache_data_t* data, ccache_t* cache, cc
 
 ccache_node_t* 
 ccache_list_set(int hashindex, ccache_data_t* data, struct ccache_t* cache,
-                    ccache_compare_t compare, ccache_erase_t erase, void* arg, ccache_update_t update)
+                    ccache_erase_t erase, void* arg, ccache_update_t update)
 {
-    ccache_node_t* node = ccache_list_find_auxiliary(hashindex, data, cache, compare);
+    ccache_node_t* node = ccache_list_find_auxiliary(hashindex, data, cache);
 
     if (node)
     {

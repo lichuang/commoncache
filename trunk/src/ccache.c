@@ -23,10 +23,12 @@
 
 #include <string.h>
 
+ccache_compare_t cache_compare;
 static int ccache_count_cache_size(int datasize, int hashitemnum);
+static int ccache_compare_key(const void* data1, const void* data2, int len);
 
 ccache_t* 
-ccache_open(const char *configfile)
+ccache_open(const char *configfile, ccache_compare_t compare)
 {
     int filesize;
     ccache_t *cache;
@@ -77,6 +79,15 @@ ccache_open(const char *configfile)
         }
     }
 
+    if (!compare)
+    {
+        cache_compare = ccache_compare_key;
+    }
+    else
+    {
+        cache_compare = compare;
+    }
+
     CCACHE_SET_SUCCESS;
 
     return cache;        
@@ -90,7 +101,7 @@ ccache_close(ccache_t *cache)
 }
 
 int 
-ccache_insert(const ccache_data_t *data, ccache_t *cache, ccache_compare_t compare,
+ccache_insert(const ccache_data_t *data, ccache_t *cache,
             ccache_erase_t erase, void* arg)
 {
     int hashindex = ccache_hash(data->key, data->keysize, cache), exist;
@@ -105,7 +116,7 @@ ccache_insert(const ccache_data_t *data, ccache_t *cache, ccache_compare_t compa
     cache->stat.insert_stat.total_num++;
 
     exist = 0;
-    node = cache->functor.insert(hashindex, data, cache, compare, erase, arg, &exist);
+    node = cache->functor.insert(hashindex, data, cache, erase, arg, &exist);
 
     //if (!node || exist)
     if (!node)
@@ -137,7 +148,7 @@ ccache_insert(const ccache_data_t *data, ccache_t *cache, ccache_compare_t compa
 }
 
 int 
-ccache_find(ccache_data_t *data, ccache_t *cache, ccache_compare_t compare)
+ccache_find(ccache_data_t *data, ccache_t *cache)
 {
     int hashindex = ccache_hash(data->key, data->keysize, cache);
     ccache_node_t *node;
@@ -149,7 +160,7 @@ ccache_find(ccache_data_t *data, ccache_t *cache, ccache_compare_t compare)
     }
 
     cache->stat.find_stat.total_num++;
-    node = cache->functor.find(hashindex, data, cache, compare);
+    node = cache->functor.find(hashindex, data, cache);
 
     if (node)
     {
@@ -180,7 +191,7 @@ ccache_find(ccache_data_t *data, ccache_t *cache, ccache_compare_t compare)
 }
 
 int 
-ccache_update(const ccache_data_t *data, ccache_t *cache, ccache_compare_t compare)
+ccache_update(const ccache_data_t *data, ccache_t *cache)
 {
     int hashindex = ccache_hash(data->key, data->keysize, cache);
     ccache_node_t *node;
@@ -192,7 +203,7 @@ ccache_update(const ccache_data_t *data, ccache_t *cache, ccache_compare_t compa
     }
 
     cache->stat.update_stat.total_num++;
-    node = cache->functor.update(hashindex, data, cache, compare);
+    node = cache->functor.update(hashindex, data, cache);
 
     if (node)
     {
@@ -223,7 +234,7 @@ ccache_update(const ccache_data_t *data, ccache_t *cache, ccache_compare_t compa
 }
 
 int 
-ccache_erase(ccache_data_t *data, ccache_t *cache, ccache_compare_t compare)
+ccache_erase(ccache_data_t *data, ccache_t *cache)
 {
     int hashindex = ccache_hash(data->key, data->keysize, cache);
     ccache_node_t *node;
@@ -236,7 +247,7 @@ ccache_erase(ccache_data_t *data, ccache_t *cache, ccache_compare_t compare)
 
     cache->stat.erase_stat.total_num++;
 
-    node = cache->functor.find(hashindex, data, cache, compare);
+    node = cache->functor.find(hashindex, data, cache);
 
     if (!node)
     {
@@ -282,7 +293,7 @@ ccache_erase(ccache_data_t *data, ccache_t *cache, ccache_compare_t compare)
 }
 
 int 
-ccache_set(ccache_data_t *data, ccache_t *cache, ccache_compare_t compare,
+ccache_set(ccache_data_t *data, ccache_t *cache,
                 ccache_erase_t erase, void* arg, ccache_update_t update)
 {
     int hashindex = ccache_hash(data->key, data->keysize, cache);
@@ -295,7 +306,7 @@ ccache_set(ccache_data_t *data, ccache_t *cache, ccache_compare_t compare,
     }
 
     cache->stat.set_stat.total_num++;
-    node = cache->functor.set(hashindex, data, cache, compare, erase, arg, update);
+    node = cache->functor.set(hashindex, data, cache, erase, arg, update);
 
     if (node)
     {
@@ -355,5 +366,11 @@ ccache_count_cache_size(int datasize, int hashitemnum)
     return (sizeof(struct ccache_t)
             + datasize
             + hashitemnum * sizeof(struct ccache_hash_t));
+}
+
+static int 
+ccache_compare_key(const void* data1, const void* data2, int len)
+{
+    return memcmp(data1, data2, sizeof(char) * len);
 }
 
