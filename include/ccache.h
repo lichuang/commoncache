@@ -135,6 +135,18 @@ typedef struct ccache_t
     ccache_hash_t hashitem[0];      /* pointer to the hashitem array */
 }ccache_t;
 
+typedef struct ccache_config_t
+{
+    char    *path;          
+    int     min_size;
+    int     max_size;
+    int     hashitem;
+    int     datasize;
+    int     prealloc_num;
+    int     align_size;
+    char    init;
+} ccache_config_t;
+
 /**
  * @brief   open a ccache 
  * @param   configfile: the config file path
@@ -143,6 +155,15 @@ typedef struct ccache_t
  * @return  NULL if failed
  */
 ccache_t*    ccache_open(const char *configfile, ccache_compare_t compare);
+
+/**
+ * @brief   open a ccache 
+ * @param   configfile: the config file path
+ * @param   compare: the function pointer used when comparing keys, if NULL, use
+ *          the memcmp function instead
+ * @return  NULL if failed
+ */
+ccache_t*    ccache_open2(ccache_config_t *config, ccache_compare_t compare);
 
 /**
  * @brief   close a ccache 
