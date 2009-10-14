@@ -18,12 +18,11 @@ EXTENSION=c
 OBJS=$(patsubst $(SRC_DIR)/%.$(EXTENSION), $(OBJ_DIR)/%.o,$(wildcard $(SRC_DIR)/*.$(EXTENSION)))
 DEPS=$(patsubst $(OBJ_DIR)/%.o, $(DEPS_DIR)/%.d, $(OBJS))
 
-INCLUDE_FILES="ccache.h ccache_error.h ccache_hash.h ccache_node.h"
+INCLUDE_FILES = ccache.h ccache_error.h ccache_hash.h ccache_node.h
 INCLUDE=-I$(INCLUDE_DIR)
 
 CC=gcc
 STRIP=strip
-#CFLAGS=-Wall -W -g -DCCACHE_USE_LIST
 CONFIGURE=-DCCACHE_USE_RBTREE
 CFLAGS=-Wall -W -g 
 STRIP_FLAGS=-g
@@ -53,7 +52,10 @@ install:
 	$(STRIP) $(STRIP_FLAGS) $(LIB)
 	cp $(LIB) $(INSTALL_DIR)
 	test -d $(INSTALL_INCLUDE_DIR) || mkdir $(INSTALL_INCLUDE_DIR)
-	cp ${INCLUDE_DIR}/* ${INSTALL_INCLUDE_DIR}
+	for i in $(INCLUDE_FILES); do 			\
+		cd $(INCLUDE_DIR); 				\
+		cp $$i $(INSTALL_INCLUDE_DIR); 	\
+	done
 
 uninstall:
 	rm -f $(INSTALL_DIR)/$(LIB_NAME) 
@@ -63,4 +65,5 @@ rebuild: clean all
 
 clean:
 	rm -rf $(OBJ_DIR)/* $(LIB_DIR)/* $(BIN_DIR)/*
+	rm -fr $(DEPS_DIR)/*
 
