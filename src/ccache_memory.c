@@ -125,7 +125,7 @@ ccache_allocate(ccache_t *cache, int size, ccache_erase_t erase, void* arg)
         ccache_lrulist_free(node, cache);
         if (CCACHE_INVALID_HASHINDEX != node->hashindex)
         {
-            cache->functor.erase(node->hashindex, node, cache); 
+            cache->functor.erase(cache, node->hashindex, node); 
             if (erase)
             {
                 erase(arg, node);

@@ -270,7 +270,7 @@ ccache_erase(ccache_data_t *data, ccache_t *cache)
         return -1;
     }
 
-    node = cache->functor.erase(hashindex, node, cache);
+    node = cache->functor.erase(cache, hashindex, node);
 
     if (node)
     {
