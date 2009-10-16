@@ -12,7 +12,7 @@
 #include "ccache_node.h"
 
 void 
-ccache_lrulist_advance(ccache_node_t *node, ccache_t *cache)
+ccache_lrulist_advance(ccache_t *cache, ccache_node_t *node)
 {
     ccache_freearea_t *freearea = &(cache->freearea[node->freeareaid]);
     ccache_node_t *lruprev, *lrunext, *lruprevprev;
@@ -63,7 +63,7 @@ ccache_lrulist_advance(ccache_node_t *node, ccache_t *cache)
 }
 
 int  
-ccache_lrulist_free(ccache_node_t *node, ccache_t *cache)
+ccache_lrulist_free(ccache_t *cache, ccache_node_t *node)
 {
     ccache_node_t *lrunext = node->lrunext, *lruprev = node->lruprev;
     ccache_freearea_t* freearea = &(cache->freearea[node->freeareaid]);
@@ -90,7 +90,7 @@ ccache_lrulist_free(ccache_node_t *node, ccache_t *cache)
 }
 
 int  
-ccache_lrulist_return(ccache_node_t *node, ccache_t *cache)
+ccache_lrulist_return(ccache_t *cache, ccache_node_t *node)
 {
     ccache_freearea_t* freearea = &(cache->freearea[node->freeareaid]);
     if (node == freearea->lrulast)

@@ -29,7 +29,7 @@ static ccache_node_t* ccache_list_set(ccache_t *cache, int hashindex,
 										ccache_data_t* data, ccache_erase_t erase, 
                                         void* arg, ccache_update_t update);
 
-static ccache_node_t* ccache_list_erase(int hashindex, ccache_node_t* node, ccache_t* cache);
+static ccache_node_t* ccache_list_erase(ccache_t *cache, int hashindex, ccache_node_t* node);
 
 static void           ccache_list_visit(ccache_t* cache, int hashindex, ccache_visit_t visit, void* arg);
 
@@ -79,7 +79,7 @@ ccache_list_find_auxiliary(ccache_t *cache, int hashindex, const ccache_data_t* 
 }
 
 static void 
-ccache_list_init_node(ccache_node_t* node, int hashindex, const ccache_data_t* data, ccache_t* cache)
+ccache_list_init_node(ccache_t *cache, ccache_node_t* node, int hashindex, const ccache_data_t* data)
 {
     ccache_node_t* first;
     ccache_hash_t* hashitem = &cache->hashitem[hashindex];
@@ -106,7 +106,7 @@ ccache_list_init_node(ccache_node_t* node, int hashindex, const ccache_data_t* d
 }
 
 static ccache_node_t* 
-ccache_list_insert_auxiliary(int hashindex, const ccache_data_t* data, ccache_t* cache,
+ccache_list_insert_auxiliary(ccache_t *cache, int hashindex, const ccache_data_t* data,
                             ccache_erase_t erase, void* arg)
 {
     int nodesize = ccache_count_nodesize(data);
@@ -118,13 +118,13 @@ ccache_list_insert_auxiliary(int hashindex, const ccache_data_t* data, ccache_t*
         return NULL;
     }
 
-    ccache_list_init_node(node, hashindex, data, cache);
+    ccache_list_init_node(cache, node, hashindex, data);
 
     return node;
 }
 
 static void 
-ccache_list_advance(ccache_node_t* node, int hashindex, ccache_t* cache)
+ccache_list_advance(ccache_t *cache, ccache_node_t* node, int hashindex)
 {
     ccache_hash_t* hashitem = &cache->hashitem[hashindex];
     ccache_node_t *prev, *next, *prevprev;
@@ -166,7 +166,7 @@ ccache_list_find(ccache_t *cache, int hashindex, const ccache_data_t* data)
 
     if (node)
     {
-        ccache_list_advance(node, hashindex, cache);
+        ccache_list_advance(cache, node, hashindex);
     }
 
     return node;
@@ -188,7 +188,7 @@ ccache_list_insert(ccache_t *cache, int hashindex,
     }
     else
     {
-        return ccache_list_insert_auxiliary(hashindex, data, cache, erase, arg);
+        return ccache_list_insert_auxiliary(cache, hashindex, data, erase, arg);
     }
 }
 
@@ -204,7 +204,7 @@ ccache_list_update(ccache_t *cache, int hashindex, const ccache_data_t* data)
     }
 
     memcpy(CCACHE_NODE_DATA(node), data->data, node->datasize);
-    ccache_list_advance(node, hashindex, cache);
+    ccache_list_advance(cache, node, hashindex);
 
     return node;
 }
@@ -220,18 +220,18 @@ ccache_list_set(ccache_t *cache, int hashindex, ccache_data_t* data,
         update(node, data);
 
         memcpy(CCACHE_NODE_DATA(node), data->data, node->datasize);
-        ccache_list_advance(node, hashindex, cache);
+        ccache_list_advance(cache, node, hashindex);
     }
     else
     {
-        node = ccache_list_insert_auxiliary(hashindex, data, cache, erase, arg);
+        node = ccache_list_insert_auxiliary(cache, hashindex, data, erase, arg);
     }
 
     return node;
 }
 
 static ccache_node_t* 
-ccache_list_erase(int hashindex, ccache_node_t* node, ccache_t* cache)
+ccache_list_erase(ccache_t *cache, int hashindex, ccache_node_t* node)
 {
     ccache_node_t *prev, *next;
     ccache_hash_t* hashitem;

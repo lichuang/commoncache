@@ -11,9 +11,9 @@
 
 #include "ccache.h"
 
-void ccache_lrulist_advance(ccache_node_t *node, ccache_t *cache);
-int  ccache_lrulist_free(ccache_node_t *node, ccache_t *cache);
-int  ccache_lrulist_return(ccache_node_t *node, ccache_t *cache);
+void ccache_lrulist_advance(ccache_t *cache, ccache_node_t *node);
+int  ccache_lrulist_free(ccache_t *cache, ccache_node_t *node);
+int  ccache_lrulist_return(ccache_t *cache, ccache_node_t *node);
 
 #endif /* __CCACHE_LRULIST_H__ */
 
