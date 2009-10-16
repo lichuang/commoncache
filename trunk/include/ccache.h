@@ -91,7 +91,7 @@ typedef struct ccache_functor_t
      * erase a data in the hashindex hashtable and return the erased node, 
      * if the key is not exist, return NULL
      */
-    ccache_node_t* (*erase)(int hashindex, ccache_node_t *node, struct ccache_t *cache);
+    ccache_node_t* (*erase)(struct ccache_t *cache, int hashindex, ccache_node_t *node);
 
     /*
      * visit the nodes in the hashindex hash-table

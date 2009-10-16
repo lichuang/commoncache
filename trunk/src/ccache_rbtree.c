@@ -27,8 +27,7 @@ static ccache_node_t* ccache_rbtree_set(ccache_t *cache, int hashindex,
 										ccache_data_t* data, ccache_erase_t erase, 
                                         void* arg, ccache_update_t update);
 
-static ccache_node_t* ccache_rbtree_erase(int hashindex, ccache_node_t* node, 
-                                        ccache_t* cache);
+static ccache_node_t* ccache_rbtree_erase(ccache_t *cache, int hashindex, ccache_node_t* node);
 
 static void           ccache_rbtree_visit(ccache_t* cache, int hashindex, 
                                         ccache_visit_t visit, void* arg);
@@ -444,7 +443,7 @@ ccache_rbtree_insert(ccache_t *cache, int hashindex,
 }
 
 static ccache_node_t* 
-ccache_rbtree_erase(int hashindex, ccache_node_t* node, ccache_t* cache)
+ccache_rbtree_erase(ccache_t *cache, int hashindex, ccache_node_t* node)
 {
     ccache_node_t *child, *parent, *old, *left, *root;
     ccache_color_t color;
