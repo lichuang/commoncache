@@ -31,7 +31,7 @@ int isparent = 0;
 
 int main()
 {
-    cache = ccache_open("../conf/fix_cache.conf");
+    cache = ccache_open("../conf/fix_cache.conf", NULL);
     if (NULL == cache)
     {
         printf("create_cache error!\n");
@@ -191,7 +191,7 @@ void mainloop()
         data.key  = (void*)&string;
 
         printf("i = %d\n", i);
-        if (0 > (ret = ccache_insert(&data, cache, cmp_fun, del_fun, NULL)))
+        if (0 > (ret = ccache_insert(&data, cache, del_fun, NULL)))
         {
             printf("[pid = %d] insert node error, errormsg = %s!\n"
                     , getpid()
@@ -202,7 +202,7 @@ void mainloop()
         {
             printf("[pid = %d] key = %s, insert node success!\n", getpid(), data.key);
 
-            if (0 > ccache_find(&data, cache, cmp_fun))
+            if (0 > ccache_find(&data, cache))
             {
                 printf("[pid = %d] find node error!\n", getpid());
                 continue;
@@ -213,12 +213,12 @@ void mainloop()
             }
 
             num = 1;
-            if (0 == ccache_set(&data, cache, cmp_fun, del_fun, NULL, update_fun))
+            if (0 == ccache_set(&data, cache, del_fun, NULL, update_fun))
             {
                 //printf("[pid = %d] set <%s, %d> success!\n", getpid(), string, num);
             }
             num = rand() + 123;
-            if (0 > ccache_update(&data, cache, cmp_fun))
+            if (0 > ccache_update(&data, cache))
             {
                 printf("[pid = %d] update <%s, %d> error!\n", getpid(), string, num);
             }
@@ -229,7 +229,7 @@ void mainloop()
 
             if (!(i%10))
             {
-                if (0 > ccache_erase(&data, cache, cmp_fun))
+                if (0 > ccache_erase(&data, cache))
                 {
                     printf("[%s, %d, pid = %d] delete <%s, %d> error, errormsg = %s!\n"
                             , ccache_error_file, ccache_error_line
