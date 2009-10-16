@@ -140,7 +140,7 @@ ccache_insert(ccache_t *cache, const ccache_data_t *data,
     else
     {
         cache->stat.insert_stat.success_num++;
-        ccache_lrulist_advance(node, cache);
+        ccache_lrulist_advance(cache, node);
     }
 
     if (pthread_rwlock_unlock(&(cache->lock)) < 0)
@@ -178,7 +178,7 @@ ccache_find(ccache_t *cache, ccache_data_t *data)
     if (node)
     {
         memcpy(data->data, CCACHE_NODE_DATA(node), node->datasize);
-        ccache_lrulist_advance(node, cache);
+        ccache_lrulist_advance(cache, node);
         cache->stat.find_stat.success_num++;
     }
     else
@@ -221,7 +221,7 @@ ccache_update(ccache_t *cache, const ccache_data_t *data)
     if (node)
     {
         cache->stat.update_stat.success_num++;
-        ccache_lrulist_advance(node, cache);
+        ccache_lrulist_advance(cache, node);
     }
     else
     {
@@ -279,7 +279,7 @@ ccache_erase(ccache_t *cache, ccache_data_t *data)
             memcpy(data->data, CCACHE_NODE_DATA(node), node->datasize);
         }
 
-        ccache_lrulist_return(node, cache);
+        ccache_lrulist_return(cache, node);
         node->hashindex = CCACHE_INVALID_HASHINDEX;
         cache->stat.erase_stat.success_num++;
     }
@@ -324,7 +324,7 @@ ccache_set(ccache_t *cache, ccache_data_t *data,
     if (node)
     {
         cache->stat.set_stat.success_num++;
-        ccache_lrulist_advance(node, cache);
+        ccache_lrulist_advance(cache, node);
     }
     else
     {
