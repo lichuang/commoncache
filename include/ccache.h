@@ -61,8 +61,8 @@ typedef struct ccache_functor_t
     /*
      * find a data in the hashindex hashtable  
      */
-    ccache_node_t* (*find)(int hashindex, const ccache_data_t *data, 
-                            struct ccache_t *cache);
+    ccache_node_t* (*find)(struct ccache_t *cache,
+							int hashindex, const ccache_data_t *data);
 
     /*
      * insert a data in the hashindex hashtable, if the key exist,
@@ -186,11 +186,11 @@ int         ccache_insert(const ccache_data_t *data, ccache_t *cache,
 
 /**
  * @brief   find a node in the cache
- * @param   data  if success, the value of the node contained in this data, so it must not be NULL
  * @param   cache: the cache pointer
+ * @param   data  if success, the value of the node contained in this data, so it must not be NULL
  * @return  0 if success, -1 if failed
  */
-int         ccache_find(ccache_data_t *data, ccache_t *cache);
+int         ccache_find(ccache_t *cache, ccache_data_t *data);
 
 /**
  * @brief   update a node in the cache

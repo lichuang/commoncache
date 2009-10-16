@@ -15,8 +15,7 @@
 
 #ifdef CCACHE_USE_RBTREE
 
-static ccache_node_t* ccache_rbtree_find(int hashindex, const ccache_data_t* data,
-                                        ccache_t* cache);
+static ccache_node_t* ccache_rbtree_find(ccache_t *cache, int hashindex, const ccache_data_t* data);
 
 static ccache_node_t* ccache_rbtree_insert(int hashindex, const ccache_data_t* data,
                                         ccache_t* cache, ccache_erase_t erase, 
@@ -350,7 +349,7 @@ ccache_rbtree_insert_auxiliary(int hashindex, ccache_node_t* node, ccache_node_t
 }
 
 static ccache_node_t* 
-ccache_rbtree_find_auxiliary(int hashindex, const ccache_data_t* data, ccache_t* cache,
+ccache_rbtree_find_auxiliary(ccache_t *cache, int hashindex, const ccache_data_t* data,
                             ccache_node_t** save)
 {
     ccache_node_t *node, *parent;
@@ -405,10 +404,9 @@ ccache_rbtree_visit_auxiliary(ccache_node_t* node, ccache_visit_t visit, void* a
 }
 
 ccache_node_t* 
-ccache_rbtree_find(int hashindex, const ccache_data_t* data,
-                    ccache_t* cache)
+ccache_rbtree_find(ccache_t *cache, int hashindex, const ccache_data_t* data)
 {
-    return ccache_rbtree_find_auxiliary(hashindex, data, cache, NULL);
+    return ccache_rbtree_find_auxiliary(cache, hashindex, data, NULL);
 }
 
 ccache_node_t* 
@@ -417,7 +415,7 @@ ccache_rbtree_insert(int hashindex, const ccache_data_t* data, ccache_t* cache,
 {
     ccache_node_t *node = NULL, *parent = NULL;
 
-    node = ccache_rbtree_find_auxiliary(hashindex, data, cache, &parent);
+    node = ccache_rbtree_find_auxiliary(cache, hashindex, data, &parent);
     if (node)
     {
         CCACHE_SET_ERROR_NUM(CCACHE_KEY_EXIST);
@@ -438,7 +436,7 @@ ccache_rbtree_insert(int hashindex, const ccache_data_t* data, ccache_t* cache,
     if (node->hashindex == hashindex)
     {
         parent = NULL;
-        ccache_rbtree_find_auxiliary(hashindex, data, cache, &parent);
+        ccache_rbtree_find_auxiliary(cache, hashindex, data, &parent);
     }
 
     ccache_rbtree_init(node, hashindex, data);
@@ -569,7 +567,7 @@ ccache_rbtree_update(int hashindex, const ccache_data_t* data, ccache_t* cache)
 {
     ccache_node_t* node, *parent;
 
-    node = ccache_rbtree_find_auxiliary(hashindex, data, cache, &parent);
+    node = ccache_rbtree_find_auxiliary(cache, hashindex, data, &parent);
     if (!node)
     {
         CCACHE_SET_ERROR_NUM(CCACHE_KEY_NOT_EXIST);
@@ -587,7 +585,7 @@ ccache_rbtree_set(int hashindex, ccache_data_t* data, ccache_t* cache,
 {
     ccache_node_t *node = NULL, *parent = NULL;
 
-    node = ccache_rbtree_find_auxiliary(hashindex, data, cache, &parent);
+    node = ccache_rbtree_find_auxiliary(cache, hashindex, data, &parent);
 
     if (node)
     {
@@ -611,7 +609,7 @@ ccache_rbtree_set(int hashindex, ccache_data_t* data, ccache_t* cache,
         if (node->hashindex == hashindex)
         {
             parent = NULL;
-            ccache_rbtree_find_auxiliary(hashindex, data, cache, &parent);
+            ccache_rbtree_find_auxiliary(cache, hashindex, data, &parent);
         }
 
         ccache_rbtree_init(node, hashindex, data);
