@@ -11,7 +11,7 @@
 #include <string.h>
 
 int 
-ccache_hash(const void* key, int keysize, ccache_t *cache)
+ccache_hash(ccache_t *cache, const void* key, int keysize)
 {
     int index, i;
     unsigned int hash = 0, tempindex = 0;
