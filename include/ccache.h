@@ -76,8 +76,8 @@ typedef struct ccache_functor_t
      * set a data in the hashindex hashtable,
      * if the key exist, insert the data 
      */
-    ccache_node_t* (*set)(int hashindex, ccache_data_t *data,
-                            struct ccache_t *cache, ccache_erase_t erase, 
+    ccache_node_t* (*set)(struct ccache_t *cache, int hashindex, 
+							ccache_data_t *data, ccache_erase_t erase, 
                             void* arg, ccache_update_t update);
 
     /*
@@ -212,13 +212,13 @@ int         ccache_erase(ccache_data_t *data, ccache_t *cache);
 
 /**
  * @brief   set the key with the data, no matter if or not the key exists
- * @param   data:   the data updated to the node, if success, the new value of node contained in this data,so it must not be NULL
  * @param   cache: the cache pointer
+ * @param   data:   the data updated to the node, if success, the new value of node contained in this data,so it must not be NULL
  * @param   arg: the argument passed to the erase function
  * @param   update: the function used to update node
  * @return  0 if success, -1 if failed
  */
-int         ccache_set(ccache_data_t *data, ccache_t *cache,
+int         ccache_set(ccache_t *cache, ccache_data_t *data,
                         ccache_erase_t erase, void* arg, ccache_update_t update);
 
 /**

@@ -306,7 +306,7 @@ ccache_erase(ccache_data_t *data, ccache_t *cache)
 }
 
 int 
-ccache_set(ccache_data_t *data, ccache_t *cache,
+ccache_set(ccache_t *cache, ccache_data_t *data,
                 ccache_erase_t erase, void* arg, ccache_update_t update)
 {
     int hashindex = ccache_hash(data->key, data->keysize, cache);
@@ -319,7 +319,7 @@ ccache_set(ccache_data_t *data, ccache_t *cache,
     }
 
     cache->stat.set_stat.total_num++;
-    node = cache->functor.set(hashindex, data, cache, erase, arg, update);
+    node = cache->functor.set(cache, hashindex, data, erase, arg, update);
 
     if (node)
     {
