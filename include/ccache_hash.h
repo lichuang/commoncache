@@ -24,7 +24,7 @@ typedef struct ccache_hash_t
     int nodenum;
 }ccache_hash_t;
 
-int ccache_hash(const void* key, int keysize, struct ccache_t *cache);
+int ccache_hash(struct ccache_t *cache, const void* key, int keysize);
 int ccache_init_hashitem(struct ccache_t *cache);
 
 #define CCACHE_INVALID_HASHINDEX   -1

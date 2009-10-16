@@ -117,7 +117,7 @@ int
 ccache_insert(ccache_t *cache, const ccache_data_t *data,
             ccache_erase_t erase, void* arg)
 {
-    int hashindex = ccache_hash(data->key, data->keysize, cache), exist;
+    int hashindex = ccache_hash(cache, data->key, data->keysize), exist;
     ccache_node_t *node;
 
     if (pthread_rwlock_wrlock(&(cache->lock)) < 0)
@@ -163,7 +163,7 @@ ccache_insert(ccache_t *cache, const ccache_data_t *data,
 int 
 ccache_find(ccache_t *cache, ccache_data_t *data)
 {
-    int hashindex = ccache_hash(data->key, data->keysize, cache);
+    int hashindex = ccache_hash(cache, data->key, data->keysize);
     ccache_node_t *node;
 
     if (pthread_rwlock_wrlock(&(cache->lock)) < 0)
@@ -206,7 +206,7 @@ ccache_find(ccache_t *cache, ccache_data_t *data)
 int 
 ccache_update(ccache_t *cache, const ccache_data_t *data)
 {
-    int hashindex = ccache_hash(data->key, data->keysize, cache);
+    int hashindex = ccache_hash(cache, data->key, data->keysize);
     ccache_node_t *node;
 
     if (pthread_rwlock_wrlock(&(cache->lock)) < 0)
@@ -249,7 +249,7 @@ ccache_update(ccache_t *cache, const ccache_data_t *data)
 int 
 ccache_erase(ccache_t *cache, ccache_data_t *data)
 {
-    int hashindex = ccache_hash(data->key, data->keysize, cache);
+    int hashindex = ccache_hash(cache, data->key, data->keysize);
     ccache_node_t *node;
 
     if (pthread_rwlock_wrlock(&(cache->lock)) < 0)
@@ -309,7 +309,7 @@ int
 ccache_set(ccache_t *cache, ccache_data_t *data,
                 ccache_erase_t erase, void* arg, ccache_update_t update)
 {
-    int hashindex = ccache_hash(data->key, data->keysize, cache);
+    int hashindex = ccache_hash(cache, data->key, data->keysize);
     ccache_node_t *node;
 
     if (pthread_rwlock_wrlock(&(cache->lock)) < 0)
