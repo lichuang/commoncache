@@ -204,11 +204,11 @@ int         ccache_update(ccache_t *cache, const ccache_data_t *data);
 
 /**
  * @brief   erase a node in the cache
- * @param   data:  if success, the value of the deleted node contained in this data,so it must not be NULL
  * @param   cache: the cache pointer
+ * @param   data:  if success, the value of the deleted node contained in this data,so it must not be NULL
  * @return  0 if success, -1 if failed
  */
-int         ccache_erase(ccache_data_t *data, ccache_t *cache);
+int         ccache_erase(ccache_t *cache, ccache_data_t *data);
 
 /**
  * @brief   set the key with the data, no matter if or not the key exists
