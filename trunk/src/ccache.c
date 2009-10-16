@@ -247,7 +247,7 @@ ccache_update(ccache_t *cache, const ccache_data_t *data)
 }
 
 int 
-ccache_erase(ccache_data_t *data, ccache_t *cache)
+ccache_erase(ccache_t *cache, ccache_data_t *data)
 {
     int hashindex = ccache_hash(data->key, data->keysize, cache);
     ccache_node_t *node;
