@@ -23,8 +23,7 @@ static ccache_node_t* ccache_list_insert(ccache_t *cache, int hashindex,
 										const ccache_data_t* data, ccache_erase_t erase, 
                                         void* arg, int* exist);
 
-static ccache_node_t* ccache_list_update(int hashindex, const ccache_data_t* data, 
-                                        ccache_t* cache);
+static ccache_node_t* ccache_list_update(ccache_t *cache, int hashindex, const ccache_data_t* data); 
 
 static ccache_node_t* ccache_list_set(ccache_t *cache, int hashindex,
 										ccache_data_t* data, ccache_erase_t erase, 
@@ -194,7 +193,7 @@ ccache_list_insert(ccache_t *cache, int hashindex,
 }
 
 static ccache_node_t* 
-ccache_list_update(int hashindex, const ccache_data_t* data, ccache_t* cache)
+ccache_list_update(ccache_t *cache, int hashindex, const ccache_data_t* data)
 {
     ccache_node_t* node = ccache_list_find_auxiliary(cache, hashindex, data);
 

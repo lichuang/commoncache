@@ -84,8 +84,8 @@ typedef struct ccache_functor_t
      * update a data in the hashindex hashtable, 
      * if the key is not exist, return NULL
      */
-    ccache_node_t* (*update)(int hashindex, const ccache_data_t *data, 
-                            struct ccache_t *cache);
+    ccache_node_t* (*update)(struct ccache_t *cache, 
+							int hashindex, const ccache_data_t *data); 
 
     /*
      * erase a data in the hashindex hashtable and return the erased node, 
@@ -194,13 +194,13 @@ int         ccache_find(ccache_t *cache, ccache_data_t *data);
 
 /**
  * @brief   update a node in the cache
+ * @param   cache: the cache pointer
  * @param   data: the data will be update to the node,if success, the value of the node contained in this data,
  *          so it must not be NULL
- * @param   cache: the cache pointer
  * @return  0 if success, -1 if failed
  * @NOTE    the data size and key size MUST equal to the previous
  */
-int         ccache_update(const ccache_data_t *data, ccache_t *cache);
+int         ccache_update(ccache_t *cache, const ccache_data_t *data);
 
 /**
  * @brief   erase a node in the cache
