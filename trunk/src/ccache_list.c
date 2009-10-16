@@ -26,8 +26,8 @@ static ccache_node_t* ccache_list_insert(ccache_t *cache, int hashindex,
 static ccache_node_t* ccache_list_update(int hashindex, const ccache_data_t* data, 
                                         ccache_t* cache);
 
-static ccache_node_t* ccache_list_set(int hashindex, ccache_data_t* data, 
-                                        ccache_t* cache, ccache_erase_t erase, 
+static ccache_node_t* ccache_list_set(ccache_t *cache, int hashindex,
+										ccache_data_t* data, ccache_erase_t erase, 
                                         void* arg, ccache_update_t update);
 
 static ccache_node_t* ccache_list_erase(int hashindex, ccache_node_t* node, ccache_t* cache);
@@ -47,7 +47,7 @@ ccache_init_list_functor(ccache_functor_t *functor)
     functor->update     = ccache_list_update;
     functor->erase      = ccache_list_erase;
     functor->visit      = ccache_list_visit;
-    functor->set    = ccache_list_set;
+    functor->set    	= ccache_list_set;
 
     return 0;
 #else
@@ -160,7 +160,7 @@ ccache_list_advance(ccache_node_t* node, int hashindex, ccache_t* cache)
     }
 }
 
-ccache_node_t* 
+static ccache_node_t* 
 ccache_list_find(ccache_t *cache, int hashindex, const ccache_data_t* data)
 {
     ccache_node_t* node = ccache_list_find_auxiliary(cache, hashindex, data);
@@ -173,7 +173,7 @@ ccache_list_find(ccache_t *cache, int hashindex, const ccache_data_t* data)
     return node;
 }
 
-ccache_node_t* 
+static ccache_node_t* 
 ccache_list_insert(ccache_t *cache, int hashindex, 
 				const ccache_data_t* data, ccache_erase_t erase, 
 				void* arg, int* exist)
@@ -193,7 +193,7 @@ ccache_list_insert(ccache_t *cache, int hashindex,
     }
 }
 
-ccache_node_t* 
+static ccache_node_t* 
 ccache_list_update(int hashindex, const ccache_data_t* data, ccache_t* cache)
 {
     ccache_node_t* node = ccache_list_find_auxiliary(cache, hashindex, data);
@@ -210,8 +210,8 @@ ccache_list_update(int hashindex, const ccache_data_t* data, ccache_t* cache)
     return node;
 }
 
-ccache_node_t* 
-ccache_list_set(int hashindex, ccache_data_t* data, struct ccache_t* cache,
+static ccache_node_t* 
+ccache_list_set(ccache_t *cache, int hashindex, ccache_data_t* data,
                     ccache_erase_t erase, void* arg, ccache_update_t update)
 {
     ccache_node_t* node = ccache_list_find_auxiliary(cache, hashindex, data);
@@ -231,7 +231,7 @@ ccache_list_set(int hashindex, ccache_data_t* data, struct ccache_t* cache,
     return node;
 }
 
-ccache_node_t* 
+static ccache_node_t* 
 ccache_list_erase(int hashindex, ccache_node_t* node, ccache_t* cache)
 {
     ccache_node_t *prev, *next;
@@ -260,7 +260,7 @@ ccache_list_erase(int hashindex, ccache_node_t* node, ccache_t* cache)
     return node;
 }
 
-void 
+static void 
 ccache_list_visit(ccache_t* cache, int hashindex, ccache_visit_t visit, void* arg)
 {
     ccache_hash_t* hashitem = &cache->hashitem[hashindex];
