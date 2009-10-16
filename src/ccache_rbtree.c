@@ -309,8 +309,7 @@ ccache_rbtree_erase_rebalance(ccache_node_t* root, ccache_node_t* node, ccache_n
 }
 
 static ccache_node_t* 
-ccache_rbtree_insert_auxiliary(int hashindex, ccache_node_t* node, ccache_node_t* parent, 
-                            ccache_t* cache) 
+ccache_rbtree_insert_auxiliary(ccache_t *cache, int hashindex, ccache_node_t* node, ccache_node_t* parent) 
 {
     ccache_node_t* root = cache->hashitem[hashindex].root;
     int ret;
@@ -439,7 +438,7 @@ ccache_rbtree_insert(ccache_t *cache, int hashindex,
     }
 
     ccache_rbtree_init(node, hashindex, data);
-    return ccache_rbtree_insert_auxiliary(hashindex, node, parent, cache);
+    return ccache_rbtree_insert_auxiliary(cache, hashindex, node, parent);
 }
 
 static ccache_node_t* 
@@ -612,7 +611,7 @@ ccache_rbtree_set(ccache_t *cache, int hashindex, ccache_data_t* data,
         }
 
         ccache_rbtree_init(node, hashindex, data);
-        ccache_rbtree_insert_auxiliary(hashindex, node, parent, cache);
+        ccache_rbtree_insert_auxiliary(cache, hashindex, node, parent);
     }
 
     return node;
