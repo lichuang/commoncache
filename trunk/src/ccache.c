@@ -204,7 +204,7 @@ ccache_find(ccache_t *cache, ccache_data_t *data)
 }
 
 int 
-ccache_update(const ccache_data_t *data, ccache_t *cache)
+ccache_update(ccache_t *cache, const ccache_data_t *data)
 {
     int hashindex = ccache_hash(data->key, data->keysize, cache);
     ccache_node_t *node;
@@ -216,7 +216,7 @@ ccache_update(const ccache_data_t *data, ccache_t *cache)
     }
 
     cache->stat.update_stat.total_num++;
-    node = cache->functor.update(hashindex, data, cache);
+    node = cache->functor.update(cache, hashindex, data);
 
     if (node)
     {
