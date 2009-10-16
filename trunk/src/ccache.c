@@ -114,7 +114,7 @@ ccache_close(ccache_t *cache)
 }
 
 int 
-ccache_insert(const ccache_data_t *data, ccache_t *cache,
+ccache_insert(ccache_t *cache, const ccache_data_t *data,
             ccache_erase_t erase, void* arg)
 {
     int hashindex = ccache_hash(data->key, data->keysize, cache), exist;
@@ -129,7 +129,7 @@ ccache_insert(const ccache_data_t *data, ccache_t *cache,
     cache->stat.insert_stat.total_num++;
 
     exist = 0;
-    node = cache->functor.insert(hashindex, data, cache, erase, arg, &exist);
+    node = cache->functor.insert(cache, hashindex, data, erase, arg, &exist);
 
     //if (!node || exist)
     if (!node)

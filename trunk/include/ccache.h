@@ -68,8 +68,8 @@ typedef struct ccache_functor_t
      * insert a data in the hashindex hashtable, if the key exist,
      * return the node and set exist 
      */
-    ccache_node_t* (*insert)(int hashindex, const ccache_data_t *data,
-                            struct ccache_t *cache, ccache_erase_t erase, 
+    ccache_node_t* (*insert)(struct ccache_t *cache, int hashindex, 
+							const ccache_data_t *data, ccache_erase_t erase, 
                             void* arg, int *exist);
 
     /*
@@ -174,14 +174,14 @@ void         ccache_close(ccache_t *cache);
 
 /**
  * @brief   insert a data into the cache
- * @param   data: the data will be inserted
  * @param   cache: the cache pointer
+ * @param   data: the data will be inserted
  * @param   erase: when there is no more space to insert data, use LRU algorithm to allocate a new node, 
  *               this function used to manage the deleted node, if NULL delete the node directly
  * @param   arg: the argument passed to the erase function
  * @return  0 if success, -1 if failed
  */
-int         ccache_insert(const ccache_data_t *data, ccache_t *cache, 
+int         ccache_insert(ccache_t *cache, const ccache_data_t *data, 
                         ccache_erase_t erase, void* arg);
 
 /**
