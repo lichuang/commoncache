@@ -161,7 +161,7 @@ ccache_insert(const ccache_data_t *data, ccache_t *cache,
 }
 
 int 
-ccache_find(ccache_data_t *data, ccache_t *cache)
+ccache_find(ccache_t *cache, ccache_data_t *data)
 {
     int hashindex = ccache_hash(data->key, data->keysize, cache);
     ccache_node_t *node;
@@ -173,7 +173,7 @@ ccache_find(ccache_data_t *data, ccache_t *cache)
     }
 
     cache->stat.find_stat.total_num++;
-    node = cache->functor.find(hashindex, data, cache);
+    node = cache->functor.find(cache, hashindex, data);
 
     if (node)
     {
@@ -260,7 +260,7 @@ ccache_erase(ccache_data_t *data, ccache_t *cache)
 
     cache->stat.erase_stat.total_num++;
 
-    node = cache->functor.find(hashindex, data, cache);
+    node = cache->functor.find(cache, hashindex, data);
 
     if (!node)
     {
