@@ -39,7 +39,7 @@ int main()
     }
 
 #if 1    
-    createchild(3);
+    createchild(10);
 #else    
     isparent = 1;
     mainloop();
@@ -181,7 +181,7 @@ void mainloop()
 
     for (i = 1; i < 90000; ++i)
     {
-        len = (i * 10) % STRING_LEN + 2;
+        len = (i + 10) % (STRING_LEN - 4) + 2;
 		memset(string, 0, STRING_LEN);
         createrandstring(string, len);
         num = rand();
