@@ -1,5 +1,0 @@
-错误处理
-cmp_fun去掉size参数
-加入了update_or_insert_data函数
-加入了visit_cache函数
-加入对不定长key和data支持
