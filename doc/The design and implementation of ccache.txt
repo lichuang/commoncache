@@ -1,0 +1,167 @@
+                The design and implementation of ccache(base on ccache version 0.6)
+
+
+1. Overview
+
+a) the functions of a cache
+cache the most frequently visited data in the memory, so:
+1) if the the data get losed is not a big matter,it means that you should not store data
+in the cache only, offen, cache is between the DB server and API.
+2) since the memory is not quite big, so the eliminating algorithm such LRU worked
+3) must support key-value like API such as find/erase/set .etc
+
+b) ccache version 0.6 feature:
+1) support unfix size key data
+2) support hash-rbtree and hash-list structure
+3) use LRU algorithm to eliminate nodes when it is running out of its memory size
+4) fast enough, 100W/read operation on fix-size key node in no more than 1 second
+
+c) what is the difference between ccache and memcached?
+ccache is a static library, memcached is a cache sever, so user who using ccache must
+write design the protocols between clients and server, and 
+
+2. Framework
+a) the cache file structure
+                        ---------------------------------
+                        |                               |
+                        |       ccache header           |
+                        |                               |
+cache->hashitem[0] -->  ---------------------------------
+                        |                               |
+                        |       hashitem array          |
+                        |                               |
+cache->freearea ----->  ---------------------------------
+                        |                               |
+                        |       freearea array          |
+                        |                               |
+                        ---------------------------------
+                        |                               |
+                        |       prealloc nodes          |
+                        |                               |
+cache->start_free ----> ---------------------------------
+                        |                               |
+                        |       data zone               |
+                        |                               |
+                        ---------------------------------
+                        (Figure 1, the cache file strture)
+
+b) the hashitem array detail    
+the hashitem array is used to find the node base on the node key.Every nodes in a 
+same hashitem has a same hash num.All the nodes in the same hashitem are strutured
+in list or rbtree:
+                        ---------------------------------
+                        |                               |                next
+                        |       hashitem[0]             |->first->node1 ----> node2 --->...
+                        |                               |               <----
+                        ---------------------------------               prev
+                        (Figure 2, the hash-list structrue)
+
+                                                                        parent
+                                                                    |-------------|           
+                        ---------------------------------           |    ------> node3 --->...
+                        |                               |          \ / -| right
+                        |       hashitem[0]             |->root->node1 -| left
+                        |                               |          / \  -------> node2 --->...
+                        |                               |           |-------------|           
+                        ---------------------------------               parent
+                        (Figure 3, the hash-rbtree structrue)
+when compiling the ccache, use the macro CCACHE_USE_RBTREE to specily using rbtree,
+else macro CCACHE_USE_LIST use list. So, the structrue ccache_node_t definition is:
+
+typedef struct ccache_node_t
+{
+        /* 
+          ......
+         */
+#ifdef CCACHE_USE_LIST
+    struct ccache_node_t *next, *prev;
+#elif defined CCACHE_USE_RBTREE    
+    ccache_color_t color;
+    struct ccache_node_t *parent, *left, *right;
+#endif
+
+        /* 
+          ......
+         */
+}ccache_node_t;
+
+the hashitem array size is defined in the configure file when open the cache.
+
+c) the freearea array detail    
+ccache use slab-like algorithm to allocate node memory.In the configure file, there is an
+item called "alignsize", this value specify the align size between different freearea,
+assume the alignsize is 8 bytes: 
+
+                        --------------------------------- lrufirst        lrunext
+                        |                               |---------> node1 -------> ... ---> lastnode
+                        |   freearea[0](size=8bytes)    |                 <-------             / \
+                        |                               |                 lruprev               |
+                        |                               | --------------------------------------
+                        --------------------------------- 
+                        |                               |
+                        |   freearea[1](size=16bytes)   |
+                        |                               |
+                        ---------------------------------
+                        |                               |
+                        |   freearea[2](size=24bytes)   |
+                        |                               |
+                        ---------------------------------
+                        |                               |
+                        |           ....                |
+                        |                               |
+                        ---------------------------------
+                        (Figure 1, the cache file strture)
+all the nodes in the same freearea has the same size, so when allocating a node(ccache_memory.c/ccache_allocate):
+1) allign the node size with the alignsize value, and find the fit 
+freearea(ccache_memory.c/ccache_get_freeareaid) and return the freeareaid
+2) if the data zone has enough memory for the node, change the cache->start_free and cache->freesize
+and return the node pointer
+3) else, erase the  cache->freearea[freeareaid]->lrulast node, use this node memory
+for this allocation.
+4) every time a node allocated, place it in the freearea's tail(freearea->lrulast = node),
+when the node has been visited, it move on one step in the freearea list.So, the more a node been 
+visited, the more close it moves to the freearea head(freearea->lrufirst).Hence, the freearea lrulast
+node is the less frequently visited node in the freearea size.
+
+the ccache_node_t structure has fields about LRU:
+typedef struct ccache_node_t
+{
+    /*
+       ....
+    */       
+    struct ccache_node_t *lrunext, *lruprev;
+
+    /*
+       ....
+    */       
+}ccache_node_t;
+
+3 configure file items
+a)mapfile
+the cache file path, default is ./ccache_mapfile
+
+b) min_size
+min size of a node, default is 16 bytes
+
+c) max_size
+max size of a node, default is 32 bytes
+
+if min_size == max_size, means that the cache is fix-key-size cache
+
+d) hashitem
+elements number of the the hashitem array, default is 1000
+
+e) datasize
+the data zone size,default is 1000000 bytes
+
+f) prealloc_num
+the prealloc number of nodes in a freearea when initializing the cache, default is 10
+
+g) alignsize
+the align size, default is 8 bytes
+
+h) init
+memset the cache or not?
+
+3 a demo
+
