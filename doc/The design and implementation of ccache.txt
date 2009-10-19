@@ -1,26 +1,26 @@
-                The design and implementation of ccache(base on ccache version 0.6)
-
+                The design and implementation of CommonCache Library(base on version 0.6)
 
 1. Overview
 
 a) the functions of a cache
 cache the most frequently visited data in the memory, so:
 1) if the the data get losed is not a big matter,it means that you should not store data
-in the cache only, offen, cache is between the DB server and API.
-2) since the memory is not quite big, so the eliminating algorithm such LRU worked
-3) must support key-value like API such as find/erase/set .etc
+in the cache only, offen, cache is between the DB server and application,hence reduce visiting DB times.
+2) since the memory is not quite big, so the eliminating algorithm such LRU must to be used. 
+3) must support key-value like API such as find/erase/set and so forth.
 
 b) ccache version 0.6 feature:
-1) support unfix size key data
+1) support unfix size key node
 2) support hash-rbtree and hash-list structure
 3) use LRU algorithm to eliminate nodes when it is running out of its memory size
 4) fast enough, 100W/read operation on fix-size key node in no more than 1 second
+5) using mmap to cache data in file, so it can be used in multi-thead and multi-process cases.
 
 c) what is the difference between ccache and memcached?
 ccache is a static library, memcached is a cache sever, so user who using ccache must
 write design the protocols between clients and server, and 
 
-2. Framework
+2. implementation
 a) the cache file structure
                         ---------------------------------
                         |                               |
@@ -65,8 +65,9 @@ in list or rbtree:
                         |                               |           |-------------|           
                         ---------------------------------               parent
                         (Figure 3, the hash-rbtree structrue)
+
 when compiling the ccache, use the macro CCACHE_USE_RBTREE to specily using rbtree,
-else macro CCACHE_USE_LIST use list. So, the structrue ccache_node_t definition is:
+else macro CCACHE_USE_LIST use list. So, the structrue ccache_node_t has follow fields:
 
 typedef struct ccache_node_t
 {
@@ -111,7 +112,7 @@ assume the alignsize is 8 bytes:
                         |                               |
                         ---------------------------------
                         (Figure 1, the cache file strture)
-all the nodes in the same freearea has the same size, so when allocating a node(ccache_memory.c/ccache_allocate):
+all the nodes in the same freearea has the same size, when allocating a node(ccache_memory.c/ccache_allocate):
 1) allign the node size with the alignsize value, and find the fit 
 freearea(ccache_memory.c/ccache_get_freeareaid) and return the freeareaid
 2) if the data zone has enough memory for the node, change the cache->start_free and cache->freesize
@@ -119,9 +120,9 @@ and return the node pointer
 3) else, erase the  cache->freearea[freeareaid]->lrulast node, use this node memory
 for this allocation.
 4) every time a node allocated, place it in the freearea's tail(freearea->lrulast = node),
-when the node has been visited, it move on one step in the freearea list.So, the more a node been 
-visited, the more close it moves to the freearea head(freearea->lrufirst).Hence, the freearea lrulast
-node is the less frequently visited node in the freearea size.
+when the node has been visited, it move on one step in the freearea list.So, the more a node has been 
+visited, the closer it moves to the freearea head(freearea->lrufirst).Hence, the freearea lrulast
+node is the less frequently visited node in the freearea.
 
 the ccache_node_t structure has fields about LRU:
 typedef struct ccache_node_t
