@@ -98,28 +98,28 @@ the hashitem array size is defined in the configure file when open the cache.
 ccache use slab-like algorithm to allocate node memory.In the configure file, there is an
 item called "alignsize", this value specify the align size between different freearea,
 assume the alignsize is 8 bytes: 
-<pre>
+{{{
 
-                        --------------------------------- lrufirst        lrunext
-                        |                               |---------> node1 -------> ... ---> lastnode
-                        |   freearea[0](size=8bytes)    |                 <-------             / \
-                        |                               |                 lruprev               |
-                        |                               | --------------------------------------
-                        --------------------------------- 
-                        |                               |
-                        |   freearea[1](size=16bytes)   |
-                        |                               |
+                        ---------------------------------      lrufirst            lrunext
+                        |                                             |---------> node1 -------> ... ---> lastnode
+                        | freearea[0](size=8bytes)                                <-------             / \
+                        |                                             |                           lruprev                   |
+                        |                                             | ------------------------------------
+                        ---------------------------------                             lrulast
+                        |                                            |
+                        | freearea[1](size=16bytes)     
+                        |                                            |
                         ---------------------------------
-                        |                               |
-                        |   freearea[2](size=24bytes)   |
-                        |                               |
+                        |                                            |
+                        | freearea[2](size=24bytes)     
+                        |                                            |
                         ---------------------------------
-                        |                               |
-                        |           ....                |
-                        |                               |
+                        |                                            |
+                        |               ....                         |
+                        |                                            |
                         ---------------------------------
                         (Figure 1, the cache file strture)
-</pre>
+}}}
 all the nodes in the same freearea has the same size, when allocating a node(ccache_memory.c/ccache_allocate):
  # allign the node size with the alignsize value, then find the fit 
 freearea(ccache_memory.c/ccache_get_freeareaid) and return the freeareaid
