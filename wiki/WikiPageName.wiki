@@ -1,4 +1,4 @@
-#summary One-sentence summary of this page.
+#The design and implementation of CommonCache Library(base on version 0.6) 
 
 = The design and implementation of CommonCache Library(base on version 0.6) =
 
@@ -23,7 +23,7 @@ design the protocols between clients and server, and write the server applicatio
 
  == implementation ==
 === the cache file structure ===
-<pre>
+{{{
                                        ---------------------------------
                                        |                                                 |
                                        |          ccache header             |
@@ -48,28 +48,28 @@ cache->start_free ---->   ---------------------------------
                                          (Figure 1, the cache file strture)
 
 
-</pre>
+}}}
 
 == the hashitem array detail    ==
 the hashitem array is used to find the node base on the node key.Every nodes in a same hashitem has a same hash num.All the nodes in the same hashitem are strutured in list or rbtree:
-<pre>
+{{{
                         ---------------------------------
-                        |                               |                next
-                        |       hashitem[0]             |->first->node1 ----> node2 --->...
-                        |                               |               <----
-                        ---------------------------------               prev
+                        |                                              |                           next
+                        |             hashitem[0]            |->first->node1 ----> node2 --->...
+                        |                                              |                          <----
+                        ---------------------------------                           prev
                         (Figure 2, the hash-list structrue)
 
-                                                                        parent
-                                                                    |-------------|           
-                        ---------------------------------           |    ------> node3 --->...
-                        |                               |          \ / -| right
-                        |       hashitem[0]             |->root->node1 -| left
-                        |                               |          / \  -------> node2 --->...
-                        |                               |           |-------------|           
-                        ---------------------------------               parent
+                                                                                                parent
+                                                                                                |-------------|           
+                        --------------------------------- |                    |    | ------> node3 --->...
+                        |                                                 |                 \ | /  | right
+                        |              hashitem[0]              |->root->node1 --| left
+                        |                                                 |                 / | \  | -------> node2 --->...
+                        |                                                 |                    |-------------|           
+                        ---------------------------------                        parent
                         (Figure 3, the hash-rbtree structrue)
-</pre>
+}}}
 when compiling the ccache, define the macro CCACHE_USE_RBTREE to specily using rbtree,
 else macro CCACHE_USE_LIST using list. The structrue ccache_node_t has following fields 
 about this:
