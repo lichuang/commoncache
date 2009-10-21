@@ -21,53 +21,71 @@ design the protocols between clients and server, and write the server applicatio
 
  == implementation ==
 === the cache file structure ===
-{{{
-                                       ---------------------------------
-                                       |                                                 |
-                                       |          ccache header             |
-                                       |                                                 |
-cache->hashitem[0] -->  ---------------------------------
-                                       |                                                 |
-                                       |          hashitem array            |
-                                       |                                                 |
-cache->freearea ----->  ---------------------------------
-                                       |                                                 |
-                                       |          freearea array              |
-                                       |                                                 |
-                                       ---------------------------------
-                                       |                                                 |
-                                       |          prealloc nodes            |
-                                       |                                                 |
-cache->start_free ---->   ---------------------------------
-                                       |                                                 |
-                                       |          data zone                     |
-                                       |                                                 |
-                                       ---------------------------------
-                                         (Figure 1, the cache file strture)
+<pre>
+                                +----------------+
+                                |                |
+                                | cache header   |
+                                |                |
+                                |                |
+            cache->hashitem[0]--.----------------+
+                                |                |
+                                |                |
+                                | hashitem array |
+                                |                |
+            cache->freearea ----+----------------+
+                                |                |
+                                |                |
+                                | freearea array |
+                                |                |
+                                +----------------+
+                                |                |
+                                | prealloc nodes |
+                                |                |
+            cache->start_free---+----------------+
+                                |                |
+                                |                |
+                                |                |
+                                | data  zone     |
+                                |                |
+                                |                |
+                                +----------------+
 
-
-}}}
+                        (Figure 1, the cache file strture)
+</pre>
 
 == the hashitem array detail    ==
 the hashitem array is used to find the node base on the node key.Every nodes in a same hashitem has a same hash num.All the nodes in the same hashitem are strutured in list or rbtree:
-{{{
-                        ---------------------------------
-                        |                                              |                           next
-                        |             hashitem[0]            |->first->node1 ----> node2 --->...
-                        |                                              |                          <----
-                        ---------------------------------                           prev
-                        (Figure 2, the hash-list structrue)
+<pre>
+      +---------------------+
+      |                     |
+      |                     |
+      |                     | first           next
+      |    hashitem[n]      ___________node1________\node2
+      |                     |                             ''''''''
+      |                     |               \--------
+      |                     |                 prev
+      |                     |
+      +---------------------+
 
-                                                                                                parent
-                                                                                                |-------------|           
-                        --------------------------------- |                    |    | ------> node3 --->...
-                        |                                                 |                 \ | /  | right
-                        |              hashitem[0]              |->root->node1 --| left
-                        |                                                 |                 / | \         |--> node2 --->...
-                        |                                                 |                    |-------------|           
-                        ---------------------------------                        parent
-                        (Figure 3, the hash-rbtree structrue)
-}}}
+      (Figure 2, the hash-list structrue)
+
+                                    parent
+                                  +-----------+
+                                  |           |
+     +---------------------+      |        \  |
+     |                     |      |  ------/node2
+     |                     |      |  | right
+     |                     |root \|/ |
+     |   hashitem[n]       |------node1
+     |                     |     /|\ |
+     |                     |      |  | left \
+     |                     |      |  ------'/node3
+     +---------------------+      |           |
+                                  |           |
+                                  +___________+
+                                     parent
+    (Figure 3, the hash-rbtree structrue)
+</pre>
 when compiling the ccache, define the macro CCACHE_USE_RBTREE to specily using rbtree,
 else macro CCACHE_USE_LIST using list. The structrue ccache_node_t has following fields 
 about this:
@@ -96,28 +114,29 @@ the hashitem array size is defined in the configure file when open the cache.
 ccache use slab-like algorithm to allocate node memory.In the configure file, there is an
 item called "alignsize", this value specify the align size between different freearea,
 assume the alignsize is 8 bytes: 
-{{{
-
-                        ---------------------------------      lrufirst            lrunext
-                        |                                             |---------> node1 -------> ... ---> lastnode
-                        | freearea[0](size=8bytes)                                <-------             / \
-                        |                                             |                           lruprev                   |
-                        |                                             | ------------------------------------
-                        ---------------------------------                             lrulast
-                        |                                            |
-                        | freearea[1](size=16bytes)     
-                        |                                            |
-                        ---------------------------------
-                        |                                            |
-                        | freearea[2](size=24bytes)     
-                        |                                            |
-                        ---------------------------------
-                        |                                            |
-                        |               ....                         |
-                        |                                            |
-                        ---------------------------------
-                        (Figure 1, the cache file strture)
-}}}
+<pre>
+  +-------------------+
+  |                   |
+  |freearea[0](size=8)|
+  |                   |
+  +-------------------+ lrufirst       lrunext
+  |                   |_________node1__________node2       nodelast
+  |freearea[1](size=16)              ..........     ```````   |
+  |                   |                lruprev                |
+  |                   | ______________________________________|
+  +-------------------+                lrulast
+  |                   |
+  |freearea[2](size=24)
+  |                   |
+  |                   |
+  +-------------------+
+  |                   |
+  |   ..........      |
+  |                   |
+  |                   |
+  +-------------------+
+(Figure 4, freearea array strture)
+</pre>
 all the nodes in the same freearea has the same size, when allocating a node(ccache_memory.c/ccache_allocate):
  # allign the node size with the alignsize value, then find the fit 
 freearea(ccache_memory.c/ccache_get_freeareaid) and return the freeareaid
