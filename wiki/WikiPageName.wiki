@@ -21,7 +21,7 @@ design the protocols between clients and server, and write the server applicatio
 
  == implementation ==
 === the cache file structure ===
-<pre>
+{{{
                                 +----------------+
                                 |                |
                                 | cache header   |
@@ -51,11 +51,11 @@ design the protocols between clients and server, and write the server applicatio
                                 +----------------+
 
                         (Figure 1, the cache file strture)
-</pre>
+}}}
 
 == the hashitem array detail    ==
 the hashitem array is used to find the node base on the node key.Every nodes in a same hashitem has a same hash num.All the nodes in the same hashitem are strutured in list or rbtree:
-<pre>
+{{{
       +---------------------+
       |                     |
       |                     |
@@ -85,7 +85,7 @@ the hashitem array is used to find the node base on the node key.Every nodes in 
                                   +___________+
                                      parent
     (Figure 3, the hash-rbtree structrue)
-</pre>
+}}}
 when compiling the ccache, define the macro CCACHE_USE_RBTREE to specily using rbtree,
 else macro CCACHE_USE_LIST using list. The structrue ccache_node_t has following fields 
 about this:
@@ -114,7 +114,7 @@ the hashitem array size is defined in the configure file when open the cache.
 ccache use slab-like algorithm to allocate node memory.In the configure file, there is an
 item called "alignsize", this value specify the align size between different freearea,
 assume the alignsize is 8 bytes: 
-<pre>
+{{{
   +-------------------+
   |                   |
   |freearea[0](size=8)|
@@ -136,7 +136,7 @@ assume the alignsize is 8 bytes:
   |                   |
   +-------------------+
 (Figure 4, freearea array strture)
-</pre>
+}}}
 all the nodes in the same freearea has the same size, when allocating a node(ccache_memory.c/ccache_allocate):
  # allign the node size with the alignsize value, then find the fit 
 freearea(ccache_memory.c/ccache_get_freeareaid) and return the freeareaid
