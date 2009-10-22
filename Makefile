@@ -42,13 +42,13 @@ $(OBJ_DIR)/%.o:$(SRC_DIR)/%.$(EXTENSION)
 	$(CC) $< -o $@ -c $(CFLAGS) $(CONFIGURE) $(INCLUDE) 
 
 test_fix_cache:$(TEST_DIR)/test_fix_cache.c $(LIB)
-	$(CC) $< -o $(BIN_DIR)/$@ -L$(INSTALL_DIR) -l$(LIBNAME) $(CFLAGS) -lpthread
+	$(CC) $< -o $(BIN_DIR)/$@ -l$(LIBNAME) $(CFLAGS) -lpthread
 
 test_unfix_cache:$(TEST_DIR)/test_unfix_cache.c $(LIB)
-	$(CC) $< -o $(BIN_DIR)/$@ -L$(INSTALL_DIR) -l$(LIBNAME) $(CFLAGS) -lpthread
+	$(CC) $< -o $(BIN_DIR)/$@ -l$(LIBNAME) $(CFLAGS) -lpthread
 
 demo:$(TEST_DIR)/demo.c $(LIB)
-	$(CC) $< -o $(BIN_DIR)/$@ -L$(INSTALL_DIR) -l$(LIBNAME) $(CFLAGS) -lpthread
+	$(CC) $< -o $(BIN_DIR)/$@ -l$(LIBNAME) $(CFLAGS) -lpthread
 
 install:
 	#$(STRIP) $(STRIP_FLAGS) $(LIB)
