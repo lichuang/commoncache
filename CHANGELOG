@@ -1,4 +1,4 @@
-version 0.6 (2009.10.18, base on svn reversion 50)
+version 0.6 (2009.10.22, base on svn reversion 85)
 1) rename ccache_create and ccache_destroy to ccache_open and ccache_close
 respectly
 2) when open the cache, use ini style configure file to config the cache
@@ -7,6 +7,7 @@ respectly
 5) when open the cache, init the compare function pointer, so when use the
 cache API does not need to specify the compare function  
 6) add install/uninstall target in Makefile
+7) use Bob Jenkins hash algorithm instead of the previous one.
 
 version 0.5 (2008.11.14)
 1) support hash-rbtree structure when finding a key, user can configure to use
