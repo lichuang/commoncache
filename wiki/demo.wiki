@@ -29,7 +29,7 @@ int main()
 {
     ccache_data_t data;
     int key, value;
-    ccache_t *cache = ccache_open("../conf/fix_cache.conf", NULL);
+    ccache_t *cache = ccache_open(NULL, NULL);
 
     key = 1;
     value = 2;
