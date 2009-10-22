@@ -1,3 +1,5 @@
+#summary a simple demo show how to use ccache
+
 = simple demo =
 a simple demo show how to use ccache
 
