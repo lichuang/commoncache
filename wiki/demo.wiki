@@ -1,5 +1,3 @@
-#summary One-sentence summary of this page.
-
 = simple demo =
 a simple demo show how to use ccache
 
