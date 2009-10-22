@@ -8,6 +8,7 @@ respectly
 cache API does not need to specify the compare function  
 6) add install/uninstall target in Makefile
 7) use Bob Jenkins hash algorithm instead of the previous one.
+8) add a demo in test dir, and add document in doc dir
 
 version 0.5 (2008.11.14)
 1) support hash-rbtree structure when finding a key, user can configure to use
