@@ -190,5 +190,3 @@ the align size, default is 8 bytes
 h) init
 memset the cache or not?
 
-3 a demo
-
