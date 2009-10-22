@@ -8,9 +8,7 @@ DEPS_DIR=$(DIR)/deps
 LIBNAME=ccache
 LIB_NAME=lib$(LIBNAME).a
 LIB=$(LIB_DIR)/lib$(LIBNAME).a
-TEST_FIX_CACHE=$(BIN_DIR)/test_fix_cache
-TEST_UNFIX_CACHE=$(BIN_DIR)/test_unfix_cache
-TESTDIR=$(DIR)/test
+TEST_DIR=$(DIR)/test
 INSTALL_DIR=/usr/lib
 INSTALL_INCLUDE_DIR=/usr/include/ccache
 
@@ -28,9 +26,10 @@ CONFIGURE=-DCCACHE_USE_RBTREE
 CFLAGS=-Wall -W -g 
 STRIP_FLAGS=-g
 
-.PHONY: all clean install uninstall rebuild
+.PHONY: all clean install uninstall rebuild test
 
 all:$(OBJS)
+	echo $(TESTS)
 	ar rcs $(LIB) $(OBJS)
 
 sinclude $(DEPS)
@@ -44,10 +43,10 @@ $(OBJ_DIR)/%.o:$(SRC_DIR)/%.$(EXTENSION)
 	$(CC) $< -o $@ -c $(CFLAGS) $(CONFIGURE) $(INCLUDE) 
 
 test_fix_cache:test/test_fix_cache.c $(LIB)
-	$(CC) -o $(TEST_FIX_CACHE) $(TESTDIR)/test_fix_cache.c -L$(INSTALL_DIR) -l$(LIBNAME) $(CFLAGS) -lpthread
+	$(CC) $< -o $(BIN_DIR)/$@ -L$(INSTALL_DIR) -l$(LIBNAME) $(CFLAGS) -lpthread
 
 test_unfix_cache:test/test_unfix_cache.c $(LIB)
-	$(CC) -o $(TEST_UNFIX_CACHE) $(TESTDIR)/test_unfix_cache.c -L$(INSTALL_DIR) -l$(LIBNAME) $(CFLAGS) -lpthread
+	$(CC) $< -o $(BIN_DIR)/$@ -L$(INSTALL_DIR) -l$(LIBNAME) $(CFLAGS) -lpthread
 
 install:
 	$(STRIP) $(STRIP_FLAGS) $(LIB)
