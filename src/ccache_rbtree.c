@@ -587,7 +587,10 @@ ccache_rbtree_set(ccache_t *cache, int hashindex, ccache_data_t* data,
 
     if (node)
     {
-        update(node, data);
+        if (update)
+        {
+            update(node, data);
+        }
 
         memcpy(CCACHE_NODE_DATA(node), data->data, node->datasize);
     }
