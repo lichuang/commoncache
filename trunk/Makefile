@@ -23,13 +23,12 @@ CC=gcc
 STRIP=strip
 CONFIGURE=-DCCACHE_USE_RBTREE
 #CONFIGURE=-DCCACHE_USE_LIST
-CFLAGS=-Wall -W -g 
+CFLAGS=-Wall -W -g -Werror 
 STRIP_FLAGS=-g
 
 .PHONY: all clean install uninstall rebuild test
 
 all:$(OBJS)
-	echo $(TESTS)
 	ar rcs $(LIB) $(OBJS)
 
 sinclude $(DEPS)
@@ -42,14 +41,17 @@ $(DEPS_DIR)/%.d: $(SRC_DIR)/%.$(EXTENSION)
 $(OBJ_DIR)/%.o:$(SRC_DIR)/%.$(EXTENSION) 
 	$(CC) $< -o $@ -c $(CFLAGS) $(CONFIGURE) $(INCLUDE) 
 
-test_fix_cache:test/test_fix_cache.c $(LIB)
+test_fix_cache:$(TEST_DIR)/test_fix_cache.c $(LIB)
 	$(CC) $< -o $(BIN_DIR)/$@ -L$(INSTALL_DIR) -l$(LIBNAME) $(CFLAGS) -lpthread
 
-test_unfix_cache:test/test_unfix_cache.c $(LIB)
+test_unfix_cache:$(TEST_DIR)/test_unfix_cache.c $(LIB)
+	$(CC) $< -o $(BIN_DIR)/$@ -L$(INSTALL_DIR) -l$(LIBNAME) $(CFLAGS) -lpthread
+
+demo:$(TEST_DIR)/demo.c $(LIB)
 	$(CC) $< -o $(BIN_DIR)/$@ -L$(INSTALL_DIR) -l$(LIBNAME) $(CFLAGS) -lpthread
 
 install:
-	$(STRIP) $(STRIP_FLAGS) $(LIB)
+	#$(STRIP) $(STRIP_FLAGS) $(LIB)
 	cp $(LIB) $(INSTALL_DIR)
 	test -d $(INSTALL_INCLUDE_DIR) || mkdir $(INSTALL_INCLUDE_DIR)
 	for i in $(INCLUDE_FILES); do 			\
