@@ -3,6 +3,6 @@
 = Commoncache document =
 
 Following is the Commoncache document:
-  * [http://code.google.com/p/commoncache/wiki/Design DesingAndImplementation]
+  * [http://code.google.com/p/commoncache/wiki/Design Desing And Implementation Of Ccache]
   * 
   * 
