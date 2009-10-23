@@ -1,7 +1,0 @@
-#summary Commoncache document index page
-
-= Commoncache document =
-
-Following is the Commoncache document:
-  * [http://code.google.com/p/commoncache/wiki/Design Desing And Implementation Of Ccache]
-  * [http://code.google.com/p/commoncache/wiki/demo a simple demo show how to use ccache]
