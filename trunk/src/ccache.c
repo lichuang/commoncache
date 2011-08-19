@@ -51,10 +51,10 @@ ccache_open2(ccache_config_t *config, ccache_compare_t compare)
         return NULL;
     }
 
-	if (config)
-	{
-    	cache_config = *config;
-	}
+    if (config)
+    {
+      cache_config = *config;
+    }
     filesize = ccache_count_cache_size(cache_config.datasize, cache_config.hashitem);
     cache = ccache_create_mmap(filesize, cache_config.path, &(cache_config.init));
     
