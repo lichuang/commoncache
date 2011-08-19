@@ -34,8 +34,13 @@ ccache_create_mmap(int filesize, const char *mapfilename, char *init)
     struct stat st;
     ccache_t *cache;
 
-    fd = open(mapfilename, O_RDWR);
-    if (0 <= fd && 0 != fstat(fd, &st))
+    fd = open(mapfilename, O_RDWR | O_CREAT);
+    if (fd < 0)
+    {
+        return NULL;
+    }
+
+    if (fstat(fd, &st) != 0)
     {
         return NULL;
     }
@@ -93,6 +98,7 @@ ccache_create_mmap(int filesize, const char *mapfilename, char *init)
 int 
 ccache_destroy_mmap(ccache_t *cache)
 {
+    msync(cache, cache->filesize, MS_SYNC);
     return munmap((void*)cache, cache->filesize);
 }
 
