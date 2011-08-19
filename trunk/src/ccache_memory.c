@@ -90,7 +90,7 @@ ccache_create_mmap(int filesize, const char *mapfilename, char *init)
         memset(cache, 0, sizeof(char) * filesize);
     }
 
-    close(fd);
+    cache->fd = fd;
 
     return cache;
 }
@@ -98,8 +98,11 @@ ccache_create_mmap(int filesize, const char *mapfilename, char *init)
 int 
 ccache_destroy_mmap(ccache_t *cache)
 {
+    int fd = cache->fd;
     msync(cache, cache->filesize, MS_SYNC);
-    return munmap((void*)cache, cache->filesize);
+    munmap((void*)cache, cache->filesize);
+    close(fd);
+    return 0;
 }
 
 ccache_node_t* 
